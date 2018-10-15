@@ -78,7 +78,7 @@ Apify.main(async()=>{
             const replacedObjects = replace(newObjects, filterByField, filterByEquality)
             rowsToInsert = toRows(replacedObjects)
         } else {
-            const previousObjects = toObjects(previousRows)
+            const previousObjects = toObjects(rowsResponse.data.values)
             const appendedObjects = append(previousObjects, newObjects, filterByField, filterByEquality)
             rowsToInsert = toRows(appendedObjects) 
         }  
