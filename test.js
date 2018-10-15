@@ -1,4 +1,4 @@
-const {toObjects, toRows, append, makeUniqueRows} = require('./utils.js')
+const {toObjects, toRows, append, replace, makeUniqueRows} = require('./utils.js')
 const assert = require('assert')
 
 const rows = [['a', 'b', 'c'], [2, 2, 4], [3, 2, 5], [4, 2, 5]]
@@ -21,31 +21,36 @@ const appendedWithFilterField = [
     {a:4, b:2, c:5, d: null},
     {a:null, b:null, c:5, d: 4}
 ]
-const uniqueToReplace = [
-    {d: 4, b: null, c:5, a: null}
-]
-const replacedWithFilterField = [
-    {a:2, b:2, c:4, d: null},
-    {a:3, b:2, c:5, d: null}, 
-    {a:4, b:2, c:5, d: null},
-    {a:null, b:null, c:5, d: 4}
+
+const replacedWithFilterField = [ 
+    {d: 3, b: 2, c:6},
+    {d: 4, b: null, c:5}
 ]
 
 describe('toObjects', ()=>{
     it('works', ()=>{
-        console.log('to objects')
-        console.dir(objects)
-        console.dir(toObjects(rows))
+        //console.log('to objects')
+        //console.dir(objects)
+        //console.dir(toObjects(rows))
         assert.deepEqual(objects, toObjects(rows))
     })
 })
 
 describe('toRows', ()=>{
     it('works', ()=>{
-        console.log('to rows')
-        console.dir(rows)
-        console.dir(toRows(objects))
+        //console.log('to rows')
+        //console.dir(rows)
+        //console.dir(toRows(objects))
         assert.deepEqual(rows, toRows(objects))
+    })
+})
+
+describe('replace', () => {
+    it('basic', ()=>{
+        assert.deepEqual(objects2, replace( objects2))
+    })
+    it('with field filter', () => {
+        assert.deepEqual(replacedWithFilterField, replace(objects2, 'b'))
     })
 })
 
@@ -58,11 +63,10 @@ describe('append', () => {
     })
 })
 
+
+
 describe('makeUniqueRows', () => {
-    it('append', ()=> {
-        assert.deepEqual(uniqueToAppend, makeUniqueRows('append', objects, objects2, 'b', null))
-    })
-    it('replace', ()=> {
-        assert.deepEqual(uniqueToAppend, makeUniqueRows('replace', objects, objects2, 'b', null))
+    it('works', ()=> {
+        assert.deepEqual(uniqueToAppend, makeUniqueRows( objects, objects2, 'b', null))
     })
 })

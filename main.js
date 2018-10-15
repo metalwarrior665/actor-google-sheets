@@ -3,7 +3,7 @@ const {google} = require('googleapis');
 const csvParser =require('csvtojson')
 const {apifyGoogleAuth} = require('apify-google-auth')
 
-const {toRows, toObjects, append, countCells, trimSheetRequest} = require('./utils')
+const {toRows, toObjects, append, replace,  countCells, trimSheetRequest} = require('./utils')
 
 const MAX_CELLS = 2 * 1000 * 1000
 
@@ -65,19 +65,23 @@ Apify.main(async()=>{
 
     let rowsToInsert
     if(mode === 'replace'){
-        rowsToInsert = toRows(newObjects)
+        const replacedObjects = replace(newObjects, filterByField, filterByEquality)
+        rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'append'){
         rowsResponse = await sheets.spreadsheets.values.get({
             spreadsheetId,
             range
         }).catch(e=>console.log('getting previous rows failed with error:',e.message))
-        const previousRows = rowsResponse.data.values
-        if(!previousRows) throw (`We couldn't get previous rows so we cannot compare!`)
-
-        const previousObjects = toObjects(previousRows)
-        const appendedObjects = append(previousObjects, newObjects, filterByField, filterByEquality)
-        rowsToInsert = toRows(appendedObjects) 
+        if(!rowsResponse || !rowsResponse.data) throw (`We couldn't get previous rows so we cannot compare!`)
+        if(!rowsResponse.data.values){
+            const replacedObjects = replace(newObjects, filterByField, filterByEquality)
+            rowsToInsert = toRows(replacedObjects)
+        } else {
+            const previousObjects = toObjects(previousRows)
+            const appendedObjects = append(previousObjects, newObjects, filterByField, filterByEquality)
+            rowsToInsert = toRows(appendedObjects) 
+        }  
     }
 
     // ensuring max cells limit

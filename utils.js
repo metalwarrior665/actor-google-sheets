@@ -24,7 +24,7 @@ exports.append = (oldObjects, newObjects, field, equality) => {
     const newKeys = Object.keys(newObjects[0])
     let keys = union(oldKeys, newKeys)
     // if no field or equality - this is simple concat
-    const concated = oldObjects.concat(makeUniqueRows('append', oldObjects, newObjects, field, equality))
+    const concated = oldObjects.concat(makeUniqueRows( oldObjects, newObjects, field, equality))
     const updatedObjects = concated.map(objects => {
         let updatedObj = objects
         keys.forEach(key=>{
@@ -33,6 +33,10 @@ exports.append = (oldObjects, newObjects, field, equality) => {
         return sortObj(updatedObj)
     })
     return updatedObjects
+}
+
+exports.replace = (newObjects, field, equality) => {
+    return makeUniqueRows([], newObjects, field, equality)
 }
 
 exports.trimSheetRequest = (height, width, firstSheetId) => {
@@ -72,16 +76,14 @@ function union(setA, setB) {
     return Array.from(_union);
 }
 
-function makeUniqueRows (mode, oldObjects, newObjects, field, equality){
+function makeUniqueRows (oldObjects, newObjects, field, equality){
     const countHash = (row) => md5(Object.values(row).join(''))
     const rowIntoKey = (row) => {
         if(field) return row[field]
         else if (equality) return countHash(row)
         else throw ('Nor field or equality was provided to filterUniqueRows function')
     }
-    if(!field && !equality) {
-        if (mode === 'append') return newObjects
-    }
+    if(!field && !equality)  return newObjects
 
     let tempObj = {}
     newObjects.forEach(row => tempObj[rowIntoKey(row)] = row)
