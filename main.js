@@ -45,6 +45,7 @@ Apify.main(async()=>{
     if(!csv){
         csv = await Apify.client.crawlers.getExecutionResults({
             executionId: input.datasetOrExecutionId,
+            simplified: true,
             ...defaultOptions
         }).then(res=>res.items.toString()).catch(console.log)
     }
