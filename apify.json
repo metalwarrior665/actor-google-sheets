@@ -1,0 +1,12 @@
+{
+	"name": "google-oauth2",
+	"actId": null,
+	"version": {
+		"versionNumber": "0.1",
+		"buildTag": "latest",
+		"envVars": [],
+		"sourceType": "TARBALL",
+		"tarballUrl": null
+	},
+	"template": "puppeteer_crawler"
+}
