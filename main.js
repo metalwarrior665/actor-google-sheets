@@ -40,18 +40,18 @@ Apify.main(async()=>{
     csv = await Apify.client.datasets.getItems({
         datasetId: input.datasetOrExecutionId,
         ...defaultOptions
-    }).then(res=>res.items.toString()).catch(console.log)
+    }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from dataset, will try crawler execution'))
     
     if(!csv){
-        csv = await Apify.client.crawler.getExecutionResults({
+        csv = await Apify.client.crawlers.getExecutionResults({
             executionId: input.datasetOrExecutionId,
             ...defaultOptions
         }).then(res=>res.items.toString()).catch(console.log)
     }
 
-    console.log('Data loaded from Apify storage')
+    if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
 
-    if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId`)
+    console.log('Data loaded from Apify storage')
 
     const newObjects = await csvParser().fromString(csv)
 
