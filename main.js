@@ -8,9 +8,19 @@ const {toRows, toObjects, append, replace,  countCells, trimSheetRequest} = requ
 const MAX_CELLS = 2 * 1000 * 1000
 
 Apify.main(async()=>{
-    const input = await Apify.getValue('INPUT')
+    let input = await Apify.getValue('INPUT')
     console.log('input')
     console.dir(input)
+
+    if(input.data && typeof input.data === 'object'){
+        let parsedData
+        try{
+            parsedData = JSON.parse(input.data)
+        } catch(e){
+            throw ('Data from crawler webhook could not be parsed with error:',e)
+        }
+        input = {datasetOrExecutionId: input._id, ...parsedData}
+    }
 
     const authOptions = {
         scope: "spreadsheets",
