@@ -47,23 +47,21 @@ describe('toRows', ()=>{
 
 describe('replace', () => {
     it('basic', ()=>{
-        assert.deepEqual(objects2, replace( objects2))
+        assert.deepEqual(objects2, replace({newObjects: objects2}))
     })
     it('with field filter', () => {
-        assert.deepEqual(replacedWithFilterField, replace(objects2, 'b'))
+        assert.deepEqual(replacedWithFilterField, replace({newObjects: objects2, filterByField:'b'}))
     })
 })
 
 describe('append', () => {
     it('basic', ()=>{
-        assert.deepEqual(appendedBasic, append(objects, objects2))
+        assert.deepEqual(appendedBasic, append({oldObjects: objects, newObjects: objects2}))
     })
     it('with field filter', () => {
-        assert.deepEqual(appendedWithFilterField, append(objects, objects2, 'b'))
+        assert.deepEqual(appendedWithFilterField, append({oldObjects:objects, newObjects:objects2, filterByField: 'b'}))
     })
 })
-
-
 
 describe('makeUniqueRows', () => {
     it('works', ()=> {

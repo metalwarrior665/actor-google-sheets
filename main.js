@@ -47,7 +47,7 @@ Apify.main(async()=>{
             executionId: input.datasetOrExecutionId,
             simplified: 1,
             ...defaultOptions
-        }).then(res=>res.items.toString()).catch(console.log)
+        }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from crawler'))
     }
 
     if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
@@ -76,7 +76,7 @@ Apify.main(async()=>{
 
     let rowsToInsert
     if(mode === 'replace'){
-        const replacedObjects = replace(newObjects, filterByField, filterByEquality)
+        const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'append'){
@@ -86,11 +86,11 @@ Apify.main(async()=>{
         }).catch(e=>console.log('getting previous rows failed with error:',e.message))
         if(!rowsResponse || !rowsResponse.data) throw (`We couldn't get previous rows so we cannot compare!`)
         if(!rowsResponse.data.values){
-            const replacedObjects = replace(newObjects, filterByField, filterByEquality)
+            const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(replacedObjects)
         } else {
-            const previousObjects = toObjects(rowsResponse.data.values)
-            const appendedObjects = append(previousObjects, newObjects, filterByField, filterByEquality)
+            const oldObjects = toObjects(rowsResponse.data.values)
+            const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(appendedObjects) 
         }  
     }
