@@ -1,0 +1,58 @@
+{
+    "title": "Spreadsheet import input",
+    "type": "object",
+    "schemaVersion": 1,
+    "required": ["datasetId"],
+    "properties": {
+        "datasetId": {
+            "title": "Dataset or crawler execution id",
+            "type": "string",
+            "description": "Dataset or crawler execution id where the items will be loaded from",
+            "editor": "textfield"
+        },
+        "spreadsheetId": {
+            "title": "Spreadsheet id",
+            "type": "string",
+            "description": "Id of the spreadsheet where the data should be imported",
+            "editor": "textfield"
+        },
+        "mode": {
+            "title": "Mode",
+            "type": "string",
+            "description": "How the rows will be imported to the spreadsheet",
+            "enum": ["append", "replace"]  
+        },
+        "limit": {
+            "title": "Limit items",
+            "type": "integer",
+            "description": "Number of items to take from the dataset or crawler execution. By default it is all.",
+            "unit": "items",
+            "minimum": 0
+        },
+        "offset": {
+            "title": "Offset items",
+            "type": "integer",
+            "description": "Number of items to skip from the dataset or crawler execution. By default it is 0.",
+            "unit": "items",
+            "minimum": 0
+        },"filterByField": {
+            "title": "Filter by field",
+            "type": "string",
+            "description": "Field that should be unique for the item to be inserted as a row. Cannot be used together with other filter options."
+        },"filterByEquality": {
+            "title": "Filter by equality",
+            "type": "boolean",
+            "description": "If on, item will be imported if its fields are not all equal to other row in the spredsheet. Cannot be used together with other filter options."
+        },"filterFunction": {
+            "title": "Filter function",
+            "type": "string",
+            "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with other filter options. For more info, check the docs.",
+            "editor": "javascript"
+        },
+        "tokensStore":{
+            "title": "Google OAuth tokens store",
+            "type": "string",
+            "description": "Key-value store where your Google OAuth tokens will be stored so you don't have to authorize every time again. By default it is google-oauth-tokens"
+        }
+    }
+}

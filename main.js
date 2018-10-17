@@ -22,6 +22,19 @@ Apify.main(async()=>{
         input = {datasetOrExecutionId: input._id, ...parsedData}
     }
 
+    let transformFunction = require('./transformFunctions').customTransform1
+    //input.transformFunction = require('./transformFunctions').customTransform1
+    if(input.transformFunction){
+        try{
+            transformFunction = eval(input.transformFunction)
+        } catch(e){
+            console.log('Evaluation of the tranform function failed with error:',e)
+        }
+        if(!transformFunction) throw new Error ('We were not able to parse transform function from input, therefore we cannot continue')
+        if(input.mode === 'replace' && transformFunction.length !== 1) throw new Error ('If the mode is "replace", transform function has to take one argument!')
+        if(input.mode === 'append' && transformFunction.length !== 2) throw new Error ('If the mode is "append", transform function has to take two arguments!')
+    }
+
     const authOptions = {
         scope: "spreadsheets",
         tokensStore: input.tokensStore
@@ -55,6 +68,10 @@ Apify.main(async()=>{
     console.log('Data loaded from Apify storage')
 
     const newObjects = await csvParser().fromString(csv)
+
+    if(newObjects.length === 0){
+        console.log('We loaded 0 items from the dataset or crawler execution, finishing...')
+    }
 
     const sheets = google.sheets({version: 'v4', auth});
 

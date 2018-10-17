@@ -20,14 +20,14 @@ exports.toRows = (objects) => {
 
 // works only if all objects in one array have the same keys
 exports.append = ({oldObjects, newObjects, filterByField, filterByEquality, transformFunction}) => {
-    if(transformFunction){
-        return transformFunction(newObjects, oldObjects)
-    }
     const oldKeys = Object.keys(oldObjects[0])
     const newKeys = Object.keys(newObjects[0])
     let keys = union(oldKeys, newKeys)
     // if no field or equality - this is simple concat
-    const concated = oldObjects.concat(makeUniqueRows( oldObjects, newObjects, filterByField, filterByEquality))
+    const toConcat = transformFunction
+        ? transformFunction(newObjects, oldObjects)
+        : makeUniqueRows( oldObjects, newObjects, filterByField, filterByEquality)
+    const concated = oldObjects.concat(toConcat)
     const updatedObjects = concated.map(objects => {
         let updatedObj = objects
         keys.forEach(key=>{
