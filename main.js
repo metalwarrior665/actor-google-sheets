@@ -22,7 +22,7 @@ Apify.main(async()=>{
         input = {datasetOrExecutionId: input._id, ...parsedData}
     }
 
-    let transformFunction = require('./transformFunctions').customTransform1
+    //let transformFunction = require('./transformFunctions').customTransform1
     //input.transformFunction = require('./transformFunctions').customTransform1
     if(input.transformFunction){
         try{
@@ -75,7 +75,7 @@ Apify.main(async()=>{
 
     const sheets = google.sheets({version: 'v4', auth});
 
-    const {spreadsheetId, mode, filterByField, filterByEquality} = input
+    const {spreadsheetId, mode, filterByField, filterByEquality, createBackup} = input
 
     const spreadsheetMetadata = await sheets.spreadsheets.get({spreadsheetId})
     const {title: firstSheetName, sheetId: firstSheetId} = spreadsheetMetadata.data.sheets[0].properties
@@ -91,17 +91,22 @@ Apify.main(async()=>{
     console.log('filter by field:', filterByField)
     console.log('filter by equality:', filterByEquality)
 
+    // we load previous rows if mode is append or backup is on
+    let rowsResponse
+    if(mode === 'append' || createBackup){
+        rowsResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range
+        }).catch(e=>console.log('getting previous rows failed with error:',e.message))
+        if(!rowsResponse || !rowsResponse.data) throw new Error(`We couldn't get previous rows so we cannot append or create backup!!`)
+    }
+
     let rowsToInsert
     if(mode === 'replace'){
         const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'append'){
-        rowsResponse = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range
-        }).catch(e=>console.log('getting previous rows failed with error:',e.message))
-        if(!rowsResponse || !rowsResponse.data) throw (`We couldn't get previous rows so we cannot compare!`)
         if(!rowsResponse.data.values){
             const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(replacedObjects)
@@ -110,6 +115,16 @@ Apify.main(async()=>{
             const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(appendedObjects) 
         }  
+    }
+
+    // maybe backup
+    if(createBackup){
+        if(rowsResponse.data.values){
+            console.log('saving backup...')
+            await Apify.setValue('backup', rowsResponse.data.values)
+        } else {
+            console.log('There are currently no rows in the spreadsheet so we will not save backup...')
+        }
     }
 
     // ensuring max cells limit

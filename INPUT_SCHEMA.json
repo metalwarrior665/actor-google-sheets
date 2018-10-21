@@ -2,7 +2,7 @@
     "title": "Spreadsheet import input",
     "type": "object",
     "schemaVersion": 1,
-    "required": ["datasetId"],
+    "required": ["datasetId", "spreadsheetId", "mode"],
     "properties": {
         "datasetId": {
             "title": "Dataset or crawler execution id",
@@ -35,15 +35,19 @@
             "description": "Number of items to skip from the dataset or crawler execution. By default it is 0.",
             "unit": "items",
             "minimum": 0
-        },"filterByField": {
+        },
+        "filterByField": {
             "title": "Filter by field",
             "type": "string",
-            "description": "Field that should be unique for the item to be inserted as a row. Cannot be used together with other filter options."
-        },"filterByEquality": {
+            "description": "Field that should be unique for the item to be inserted as a row. Cannot be used together with other filter options.",
+            "editor": "textfield"
+        },
+        "filterByEquality": {
             "title": "Filter by equality",
             "type": "boolean",
             "description": "If on, item will be imported if its fields are not all equal to other row in the spredsheet. Cannot be used together with other filter options."
-        },"filterFunction": {
+        },
+        "filterFunction": {
             "title": "Filter function",
             "type": "string",
             "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with other filter options. For more info, check the docs.",
@@ -52,7 +56,13 @@
         "tokensStore":{
             "title": "Google OAuth tokens store",
             "type": "string",
-            "description": "Key-value store where your Google OAuth tokens will be stored so you don't have to authorize every time again. By default it is google-oauth-tokens"
+            "description": "Key-value store where your Google OAuth tokens will be stored so you don't have to authorize every time again. By default it is google-oauth-tokens",
+            "editor": "textfield"
+        },
+        "createBackup":{
+            "title": "Create backup",
+            "type": "boolean",
+            "description": "Old rows from your spreadsheet will be saved to the default key-value store before importing new rows."
         }
     }
 }
