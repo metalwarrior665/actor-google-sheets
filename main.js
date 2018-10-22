@@ -23,10 +23,10 @@ Apify.main(async()=>{
     }
 
     let transformFunction
-    //input.transformFunction = require('./transformFunctions').customTransform1
-    if(input.transformFunction){
+    input.filterFunction = require('./transformFunctions').customTransform1
+    if(input.filterFunction){
         try{
-            transformFunction = eval(input.transformFunction)
+            transformFunction = eval(input.filterFunction)
         } catch(e){
             console.log('Evaluation of the tranform function failed with error:',e)
         }
