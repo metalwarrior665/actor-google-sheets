@@ -4,7 +4,7 @@
     "schemaVersion": 1,
     "required": ["datasetId", "spreadsheetId", "mode"],
     "properties": {
-        "datasetId": {
+        "datasetOrExecutionId": {
             "title": "Dataset or crawler execution id",
             "type": "string",
             "description": "Dataset or crawler execution id where the items will be loaded from",
