@@ -22,7 +22,7 @@ Apify.main(async()=>{
         input = {datasetOrExecutionId: input._id, ...parsedData}
     }
 
-    //let transformFunction = require('./transformFunctions').customTransform1
+    let transformFunction
     //input.transformFunction = require('./transformFunctions').customTransform1
     if(input.transformFunction){
         try{
