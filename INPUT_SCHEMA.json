@@ -2,7 +2,7 @@
     "title": "Spreadsheet import input",
     "type": "object",
     "schemaVersion": 1,
-    "required": ["datasetId", "spreadsheetId", "mode"],
+    "required": ["datasetOrExecutionId", "spreadsheetId", "mode"],
     "properties": {
         "datasetOrExecutionId": {
             "title": "Dataset or crawler execution id",
