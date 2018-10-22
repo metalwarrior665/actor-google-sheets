@@ -57,41 +57,11 @@ exports.createKeys = createKeys
 exports.reconstructArray = reconstructArray
 exports.pseudoDeepEquals = pseudoDeepEquals
 
-
-
-const customTransform1 = (newObjects, oldObjects) => {
- 
-    // We put new rows into temp object and then overwrite them with null if we find a match
-    let tempObj = {}
-    const keysToCompare = createKeys(newObjects[0], oldObjects[0])
-    const promotionKeys = keysToCompare.filter(key => key.startsWith('promotions/'))
-    console.log('keys to compare', keysToCompare)
-    console.log('newObjects.length', newObjects.length)
-    console.log('oldObjects.length', oldObjects.length)
-    newObjects.forEach(row => tempObj[row.product_id] = row)
-    oldObjects.forEach(row => {
-        const maybeRow = tempObj[row.product_id]
-        //console.log(`comparing rows ids: old row: ${row? row.product_id: null}, new row: ${maybeRow ? maybeRow.product_id: null}`)
-        
-        if(maybeRow && pseudoDeepEquals(maybeRow, row, keysToCompare, promotionKeys)){
-            //console.log(`new row with id ${row.product_id} will not be imported`)
-            tempObj[row.product_id] = null
-        } 
-    })
-    const filteredRows = Object.values(tempObj).filter(row => !!row)
-    console.log('transformed rows length:', filteredRows.length)
-    console.log('sliced rows:')
-    console.dir(filteredRows.slice(0,5))
-    return filteredRows
-}
-
-//exports.customTransform1 = customTransform1
-
-exports.customTransform1 = `(newObjects, oldObjects) => {
+const customFilterFunctionPat = (domain) => (newObjects, oldObjects) => {
       
     const createKeys = (obj1, obj2) => {
         const unioned = union(Object.keys(obj1), Object.keys(obj2))
-        return unioned.filter(key => key.startsWith('promotions/') || key === 'price' || key === 'stock') 
+        return unioned.filter(key => key.startsWith('promotions/') || key === 'price' || key === 'stock' || key === 'product_availability') 
     }
     
     const isNotEmpty = (obj) => {
@@ -103,7 +73,7 @@ exports.customTransform1 = `(newObjects, oldObjects) => {
     const reconstructArray = (rowObject, keys) => {
         let arr = []
         keys.forEach(key => {
-            const [_, i, field] = key.match(/promotions\\/(\\d+)\\/(.+)/)
+            const [_, i, field] = key.match(/promotions\/(\d+)\/(.+)/)
             const index = parseInt(i)
             if(!arr[index]) arr[index] = {}
             arr[index][field] = rowObject[key]
@@ -113,8 +83,6 @@ exports.customTransform1 = `(newObjects, oldObjects) => {
     // only one level deep
     const deepEqualsArray = (arr1, arr2, promotionKeys) => {
         // by default they are equal
-        //console.log('arr1', arr1)
-        //console.log('arr2', arr2)
         if(arr1.length !== arr2.length) return false
         for(let i = 0; i < arr1.length; i++){
             for(const key of promotionKeys){
@@ -145,7 +113,16 @@ exports.customTransform1 = `(newObjects, oldObjects) => {
         return Array.from(_union);
     }
  
-    const customTransform1 = (newObjects, oldObjects) => {
+    const customTransform1 = (newObjects, oldObjects, domain) => {
+
+        let id
+        switch(domain){
+            case 'shopee': id = 'product_id'
+                break;
+            case 'lazada': id = 'sku'
+                break;
+            default: throw new Error ('Cannot match a domain for defining what is the id property. Expected "shopee" or "lazada"')
+        }
  
         // We put new rows into temp object and then overwrite them with null if we find a match
         let tempObj = {}
@@ -154,12 +131,12 @@ exports.customTransform1 = `(newObjects, oldObjects) => {
         console.log('keys to compare', keysToCompare)
         console.log('newObjects.length', newObjects.length)
         console.log('oldObjects.length', oldObjects.length)
-        newObjects.forEach(row => tempObj[row.product_id] = row)
+        newObjects.forEach(row => tempObj[row[id]] = row)
         oldObjects.forEach(row => {
-            const maybeRow = tempObj[row.product_id]
+            const maybeRow = tempObj[row[id]]
             
             if(maybeRow && pseudoDeepEquals(maybeRow, row, keysToCompare, promotionKeys)){
-                tempObj[row.product_id] = null
+                tempObj[row[id]] = null
             } 
         })
         const filteredRows = Object.values(tempObj).filter(row => !!row)
@@ -169,5 +146,8 @@ exports.customTransform1 = `(newObjects, oldObjects) => {
         return filteredRows
     }
     
-    return customTransform1(newObjects, oldObjects)
-}`
+    return customTransform1(newObjects, oldObjects, domain)
+}
+
+exports.patShopee = customFilterFunctionPat('shopee')
+exports.patLazada = customFilterFunctionPat('lazada')
