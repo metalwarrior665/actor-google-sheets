@@ -119,12 +119,15 @@ Apify.main(async()=>{
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'modify'){
+        if(!rowsResponse.data.values|| rowsResponse.data.values.length <= 1){
+            throw new Error('There are either no data in the sheet or only one header row so it cannot be modified!')
+        }
         const oldObjects = toObjects(rowsResponse.data.values)
         const replacedObjects = replace({newObjects: oldObjects, filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'append'){
-        if(!rowsResponse.data.values || rowsResponse.data.values.length === 0){
+        if(!rowsResponse.data.values || rowsResponse.data.values.length <= 1){
             const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(replacedObjects)
         } else {
