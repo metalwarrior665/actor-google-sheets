@@ -2,13 +2,13 @@
     "title": "Spreadsheet import input",
     "type": "object",
     "schemaVersion": 1,
-    "required": ["datasetOrExecutionId", "spreadsheetId", "mode"],
+    "required": [ "spreadsheetId", "mode"],
     "properties": {
-        "datasetOrExecutionId": {
-            "title": "Dataset or crawler execution id",
+        "mode": {
+            "title": "Mode",
             "type": "string",
-            "description": "Dataset or crawler execution id where the items will be loaded from",
-            "editor": "textfield"
+            "description": "How the rows will be imported to the spreadsheet",
+            "enum": ["append", "replace", "modify", "load backup"]  
         },
         "spreadsheetId": {
             "title": "Spreadsheet id",
@@ -16,11 +16,11 @@
             "description": "Id of the spreadsheet where the data should be imported",
             "editor": "textfield"
         },
-        "mode": {
-            "title": "Mode",
+        "datasetOrExecutionId": {
+            "title": "Dataset or crawler execution id",
             "type": "string",
-            "description": "How the rows will be imported to the spreadsheet",
-            "enum": ["append", "replace"]  
+            "description": "Dataset or crawler execution id where the items will be loaded from",
+            "editor": "textfield"
         },
         "limit": {
             "title": "Limit items",

@@ -38,43 +38,12 @@ Apify.main(async()=>{
         if(input.mode === 'append' && transformFunction.length !== 2) throw new Error ('If the mode is "append", transform function has to take two arguments!')
     }
 
+    // AUTH
     const authOptions = {
         scope: "spreadsheets",
         tokensStore: input.tokensStore
     }
     const auth = await apifyGoogleAuth(authOptions)
-
-    // loadData
-    const defaultOptions = {
-        format: 'csv',
-        limit: input.limit,
-        offset: input.offset,
-    }
-
-    let csv
-    
-    csv = await Apify.client.datasets.getItems({
-        datasetId: input.datasetOrExecutionId,
-        ...defaultOptions
-    }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from dataset, will try crawler execution'))
-    
-    if(!csv){
-        csv = await Apify.client.crawlers.getExecutionResults({
-            executionId: input.datasetOrExecutionId,
-            simplified: 1,
-            ...defaultOptions
-        }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from crawler'))
-    }
-
-    if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
-
-    console.log('Data loaded from Apify storage')
-
-    const newObjects = await csvParser().fromString(csv)
-
-    if(newObjects.length === 0){
-        console.log('We loaded 0 items from the dataset or crawler execution, finishing...')
-    }
 
     const sheets = google.sheets({version: 'v4', auth});
 
@@ -94,9 +63,45 @@ Apify.main(async()=>{
     console.log('filter by field:', filterByField)
     console.log('filter by equality:', filterByEquality)
 
+    // LOAD DATA
+    const defaultOptions = {
+        format: 'csv',
+        limit: input.limit,
+        offset: input.offset,
+    }
+
+    let newObjects
+    
+    if(mode === 'replace' || mode === 'append'){
+        let csv
+
+        csv = await Apify.client.datasets.getItems({
+            datasetId: input.datasetOrExecutionId,
+            ...defaultOptions
+        }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from dataset, will try crawler execution'))
+        
+        if(!csv){
+            csv = await Apify.client.crawlers.getExecutionResults({
+                executionId: input.datasetOrExecutionId,
+                simplified: 1,
+                ...defaultOptions
+            }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from crawler'))
+        }
+
+        if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
+
+        console.log('Data loaded from Apify storage')
+
+        newObjects = await csvParser().fromString(csv)
+
+        if(newObjects.length === 0){
+            throw new Error('We loaded 0 items from the dataset or crawler execution, finishing...')
+        }
+    }
+
     // we load previous rows if mode is append or backup is on
     let rowsResponse
-    if(mode === 'append' || createBackup){
+    if(mode === 'append' || mode === 'modify' || createBackup){
         rowsResponse = await sheets.spreadsheets.values.get({
             spreadsheetId,
             range
@@ -109,8 +114,13 @@ Apify.main(async()=>{
         const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
+    if(mode === 'modify'){
+        const oldObjects = toObjects(rowsResponse.data.values)
+        const replacedObjects = replace({newObjects: oldObjects, filterByField, filterByEquality, transformFunction})
+        rowsToInsert = toRows(replacedObjects)
+    }
     if(mode === 'append'){
-        if(!rowsResponse.data.values){
+        if(!rowsResponse.data.values || rowsResponse.data.values.length === 0){
             const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(replacedObjects)
         } else {
@@ -118,6 +128,12 @@ Apify.main(async()=>{
             const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(appendedObjects) 
         }  
+    }
+    if(mode === 'load backup'){
+        const store = await Apify.openKeyValueStore(input.backupStore)
+        if(!store) throw new Error('Backup store not found under id/name:', input.backupStore)
+        rowsToInsert = await store.getValue('backup')
+        if(!rowsToInsert) throw new Error('We did not find any record called "backup" in this store:', input.backupStore)
     }
 
     // maybe backup
