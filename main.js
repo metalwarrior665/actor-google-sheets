@@ -94,9 +94,13 @@ Apify.main(async()=>{
 
         newObjects = await csvParser().fromString(csv)
 
+        console.log('Data parsed from CSV')
+
         if(newObjects.length === 0){
             throw new Error('We loaded 0 items from the dataset or crawler execution, finishing...')
         }
+
+        console.log(`We loaded ${newObjects.length} items from Apify storage`)
     }
 
     // we load previous rows if mode is append or backup is on

@@ -4,7 +4,7 @@ const md5 = require('md5')
 exports.countCells = (rows) => rows[0].length * rows.length
 
 exports.toObjects = (rows) => {
-    if(row.length === 0) return []
+    if(rows.length === 0) return []
     const keys = rows[0]
     return rows.slice(1).map(row => {
         let obj = {}
@@ -23,7 +23,7 @@ exports.toRows = (objects) => {
 // works only if all objects in one array have the same keys
 exports.append = ({oldObjects, newObjects, filterByField, filterByEquality, transformFunction}) => {
     const oldKeys = oldObjects.length > 0 ? Object.keys(oldObjects[0]) : []
-    const newKeys = newObject.length > 0 ? Object.keys(newObjects[0]) : []
+    const newKeys = newObjects.length > 0 ? Object.keys(newObjects[0]) : []
     let keys = union(oldKeys, newKeys)
     // if no field or equality - this is simple concat
     const toConcat = transformFunction
