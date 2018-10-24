@@ -57,9 +57,9 @@ exports.createKeys = createKeys
 exports.reconstructArray = reconstructArray
 exports.pseudoDeepEquals = pseudoDeepEquals
 
-const customFilterFunctionPat = (domain) => (newObjects, oldObjects) => {
+const customFilterFunctionPat = (domain) => (newObjects, oldObjects = []) => {
       
-    const createKeys = (obj1, obj2) => {
+    const createKeys = (obj1 = {}, obj2 = {}) => {
         const unioned = union(Object.keys(obj1), Object.keys(obj2))
         return unioned.filter(key => key.startsWith('promotions/') || key === 'price' || key === 'stock' || key === 'product_availability') 
     }
