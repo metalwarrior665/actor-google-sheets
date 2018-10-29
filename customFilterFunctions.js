@@ -140,6 +140,7 @@ const customFilterFunctionPat = (domain) => (newObjects, oldObjects = []) => {
             } 
         })
         const filteredRows = Object.values(tempObj).filter(row => !!row)
+       
         console.log('transformed rows length:', filteredRows.length)
         console.log('sliced rows:')
         console.dir(filteredRows.slice(0,5))
