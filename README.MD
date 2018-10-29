@@ -10,32 +10,34 @@
 
 ## Overview
 
-**google-spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data on your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or [crawler executions](https://www.apify.com/docs/storage#dataset). It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
+**google-spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or [crawler executions](https://www.apify.com/docs/storage#dataset). It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
 ## Usage
 
-If you want to run the actor on **Apify platform**, you need to open the the actor's page in the library (unless you are already here) and then "copy" it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and run them. But keep in mind that usage is always charged toward the one who runs the actor.
+If you want to run the actor on **Apify platform**, you need to open the the [actor's page in the library](https://www.apify.com/lukaskrivka/google-spreadsheet) (unless you are already here) and then "copy" it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and run them. But keep in mind that usage is always charged towards the one who runs the actor.
 
 If on the other side you want to run the actor **locally**, you need to open the actor's [github page](https://github.com/metalwarrior665/actor-google-spreadsheet) (unless you are already here) and clone it to your computer.
 
 ## Modes
 
-This actor can be run in multiple different modes. Each has to have only one specific mode. Mode also affects how other options work (details are explained in the specific options).
+This actor can be run in multiple different modes. Each run has to have only one specific mode. Mode also affects how other options work (details are explained in the specific options).
 
 * replace - If there are any old data in the sheet, they are all cleaned and then new data are imported.
-* append - This mode add new data as additional rows after the old rows present in the sheet. Keep in mind that no old values are removed or changed but the columns are recalculated so some of the cells may move to the right.
-* modiy - This mode doesn't import anything. It only load the data from your sheets and applies any of the processing you set in the options.
+* append - This mode adds new data as additional rows after the old rows already present in the sheet. Keep in mind that no old values are removed or changed but the columns are recalculated so some of the cells may move to the right.
+* modify - This mode doesn't import anything. It only loads the data from your sheets and applies any of the processing you set in the options.
 * load backup - This mode simply loads any backup rows from previous runs (look at backup option for details) and imports it to a sheet in replace style.
 
 ## Inner workings
 
-> Important! - The maximum number of total cells in one spreadhseet is 2 millions! If you exceed this, the actor will throw an error and will not do anything!
+> Important! - The maximum number of total cells in one spreadsheet is 2 millions! If you exceed this, the actor will throw an error and will not do anything!
 
-> Important! - No matter which mode you choose, the actor always trims the rows and columns, then clears them, recalculated all the postions of the data and repaints the rows. There are 2 main reasons for this. First is that there due to the limit of rows, any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (like bigger arrays) we need to insert columns in the middle of current columns so everything needs to be recalculated and moved.
+> Important! - No matter which mode you choose, the actor always trims the rows and columns, then clears them, recalculates all the positions of the data and repaints the rows. There are 2 main reasons for this. First is to be maximally efficient with the number of rows and columns so any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (like bigger arrays) we need to insert columns in the middle of current columns so everything needs to be recalculated and moved.
 
 ## Filter options and filter function
+Will be added soon...
 
 ## Crawler webhook
+Will be added soon...
 
 ## Input
 
@@ -46,7 +48,7 @@ required params:
 - **spreadsheetId** (*String*): Id of your spreadsheet. It is the long hash in your spreadsheet URL
 
 semi-optional params:
-- **datasetOrExecutionId** (*String*): Id of the dataset or crawler execution where the you want to import are located. This option is mandatory for "replace" and "append" modes and not usable in other modes.
+- **datasetOrExecutionId** (*String*): Id of the dataset or crawler execution where the data you want to import are located. This option is mandatory for "replace" and "append" modes and not usable in other modes.
 - **backupStore** (*String*): Id of the store where the previous backup was saved. It is id of thr default key value store of the run from which you want to load the backup. This option is mandatory for "load backup" mode and not usable in other modes.
 
 optional params:
