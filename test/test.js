@@ -1,7 +1,7 @@
 const assert = require('assert')
 
-const {toObjects, toRows, append, replace, makeUniqueRows} = require('./utils.js')
-const {customTransform1, reconstructArray, pseudoDeepEquals, createKeys} = require('./transformFunctions')
+const {toObjects, toRows, append, replace, makeUniqueRows} = require('../src/utils.js')
+const {customTransform1, reconstructArray, pseudoDeepEquals, createKeys} = require('..src/transformFunctions')
 const {customObjectsNew, customObjectsOld, customObjFlat, customObjFlat2 , transformedArray} = require('./mocks')
 
 const rows = [['a', 'b', 'c'], [2, 2, 4], [3, 2, 5], [4, 2, 5]]
