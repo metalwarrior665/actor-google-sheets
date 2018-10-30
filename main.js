@@ -20,6 +20,8 @@ Apify.main(async()=>{
             throw ('Data from crawler webhook could not be parsed with error:',e)
         }
         input = {datasetOrExecutionId: input._id, ...parsedData}
+        console.log('We parsed the data into input:')
+        console.dir(input)
     }
 
     let transformFunction
