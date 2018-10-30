@@ -2,7 +2,7 @@
     "title": "Spreadsheet import input",
     "type": "object",
     "schemaVersion": 1,
-    "required": [ "spreadsheetId", "mode"],
+    "required": [],
     "properties": {
         "mode": {
             "title": "Mode",
