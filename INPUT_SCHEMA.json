@@ -57,7 +57,8 @@
             "title": "Google OAuth tokens store",
             "type": "string",
             "description": "Key-value store where your Google OAuth tokens will be stored so you don't have to authorize every time again. By default it is google-oauth-tokens",
-            "editor": "textfield"
+            "editor": "textfield",
+            "prefill": "google-oauth-tokens"
         },
         "createBackup":{
             "title": "Create backup",
