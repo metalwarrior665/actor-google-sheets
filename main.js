@@ -12,7 +12,7 @@ Apify.main(async()=>{
     console.log('input')
     console.dir(input)
 
-    if(input.data && typeof input.data === 'object'){
+    if(input.data){
         let parsedData
         try{
             parsedData = JSON.parse(input.data)
