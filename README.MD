@@ -12,9 +12,9 @@
 
 **google-spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or [crawler executions](https://www.apify.com/docs/storage#dataset). It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
-## Usage
+## Usage 
 
-If you want to run the actor on **Apify platform**, you need to open the the [actor's page in the library](https://www.apify.com/lukaskrivka/google-spreadsheet) (unless you are already here) and then "copy" it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and run them. But keep in mind that usage is always charged towards the one who runs the actor.
+If you want to run the actor on **Apify platform** you need to open the the [actor's page in the library](https://www.apify.com/lukaskrivka/google-spreadsheet) (unless you are already here) and then "copy" it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and run them. But keep in mind that usage is always charged towards the one who runs the actor.
 
 If on the other side you want to run the actor **locally**, you need to open the actor's [github page](https://github.com/metalwarrior665/actor-google-spreadsheet) (unless you are already here) and clone it to your computer.
 
