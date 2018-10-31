@@ -17,13 +17,13 @@ Apify.main(async()=>{
         try{
             parsedData = JSON.parse(input.data)
         } catch(e){
-            throw ('Data from crawler webhook could not be parsed with error:',e)
+            throw new Error('Data from crawler webhook could not be parsed with error:',e)
         }
-        input = {datasetOrExecutionId: input._id, ...parsedData}
+        input = {...parsedData, datasetOrExecutionId: input._id}
         console.log('We parsed the data into input:')
         console.dir(input)
     }
-
+    let fdfg
     let transformFunction
     if(input.customFilterFunction){
         console.log('We will use cutom filter function with name:', input.customFilterFunction)
