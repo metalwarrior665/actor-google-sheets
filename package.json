@@ -1,8 +1,8 @@
 {
-	"name": "google-oauth2",
-	"version": "1.0.0",
-	"description": "Crawl a number of web pages using headless Chrome and Puppeteer",
-	"main": "main.js",
+	"name": "actor-google-spreadsheet",
+	"version": "0.0.1",
+	"description": "Apify actor for importing data to Google spreadsheet",
+	"main": "src/main.js",
 	"dependencies": {
 		"apify": "^0.8.0",
 		"apify-google-auth": "0.1.1",
@@ -16,6 +16,7 @@
 		"eslint-config-airbnb": "^17.1.0",
 		"eslint-config-airbnb-base": "^13.1.0",
 		"eslint-plugin-import": "^2.14.0",
+		"eslint-plugin-mocha": "^5.2.0",
 		"eslint-plugin-promise": "^4.0.1",
 		"mocha": "^5.2.0"
 	},

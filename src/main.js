@@ -1,5 +1,5 @@
 const Apify = require('apify')
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const csvParser =require('csvtojson')
 const {apifyGoogleAuth} = require('apify-google-auth')
 
@@ -23,7 +23,6 @@ Apify.main(async()=>{
         console.log('We parsed the data into input:')
         console.dir(input)
     }
-    let fdfg
     let transformFunction
     if(input.customFilterFunction){
         console.log('We will use cutom filter function with name:', input.customFilterFunction)
@@ -57,7 +56,7 @@ Apify.main(async()=>{
     console.log('id of the first sheet', firstSheetId)
 
     const range = input.range || firstSheetName
-    
+
     console.log(`Spreadsheets setup:`)
     console.log('mode:',mode)
     console.log('spreadsheet id:',spreadsheetId)
@@ -73,7 +72,7 @@ Apify.main(async()=>{
     }
 
     let newObjects
-    
+
     if(mode === 'replace' || mode === 'append'){
         let csv
 
@@ -81,7 +80,7 @@ Apify.main(async()=>{
             datasetId: input.datasetOrExecutionId,
             ...defaultOptions
         }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from dataset, will try crawler execution'))
-        
+
         if(!csv){
             csv = await Apify.client.crawlers.getExecutionResults({
                 executionId: input.datasetOrExecutionId,
@@ -135,8 +134,8 @@ Apify.main(async()=>{
         } else {
             const oldObjects = toObjects(rowsResponse.data.values)
             const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
-            rowsToInsert = toRows(appendedObjects) 
-        }  
+            rowsToInsert = toRows(appendedObjects)
+        }
     }
     if(mode === 'load backup'){
         const store = await Apify.openKeyValueStore(input.backupStore)

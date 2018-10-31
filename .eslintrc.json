@@ -2,7 +2,8 @@
     "extends": ["airbnb-base"],
     "plugins": [
         "import",
-        "promise"
+        "promise",
+        "mocha"
     ],
     "parserOptions": {
         "ecmaVersion": 8,
@@ -13,7 +14,11 @@
     "globals": {
         "Npm": true
     },
+    "env": {
+        "mocha": true
+    },
     "rules": {
+        "mocha/no-exclusive-tests": "error",
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-underscore-dangle": [2, {
           "allow": ["_id", "_outputSeqNo", "_queueOrderNo", "_skipOutput", "_retryCount", "_crashesCount", "_pageFailed", "_pageCrashed"],

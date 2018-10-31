@@ -8,7 +8,7 @@
             "title": "Mode",
             "type": "string",
             "description": "How the rows will be imported to the spreadsheet",
-            "enum": ["append", "replace", "modify", "load backup"]  
+            "enum": ["append", "replace", "modify", "load backup"]
         },
         "spreadsheetId": {
             "title": "Spreadsheet id",
@@ -58,7 +58,7 @@
             "type": "string",
             "description": "Key-value store where your Google OAuth tokens will be stored so you don't have to authorize every time again. By default it is google-oauth-tokens",
             "editor": "textfield",
-            "prefill": "google-oauth-tokens"
+            "default": "google-oauth-tokens"
         },
         "createBackup":{
             "title": "Create backup",
