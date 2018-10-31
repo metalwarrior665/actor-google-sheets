@@ -47,8 +47,8 @@
             "type": "boolean",
             "description": "If on, item will be imported if its fields are not all equal to other row in the spredsheet. Cannot be used together with other filter options."
         },
-        "filterFunction": {
-            "title": "Filter function",
+        "transformFunction": {
+            "title": "Transform function",
             "type": "string",
             "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with other filter options. For more info, check the docs.",
             "editor": "javascript"

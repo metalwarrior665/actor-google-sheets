@@ -28,7 +28,7 @@ Apify.main(async()=>{
         console.log('We will use cutom filter function with name:', input.customFilterFunction)
         transformFunction = require('./customFilterFunctions.js')[input.customFilterFunction]
     }
-    if(input.filterFunction && !transformFunction){
+    if(input.transformFunction && !transformFunction){
         try{
             transformFunction = eval(input.filterFunction)
         } catch(e){
