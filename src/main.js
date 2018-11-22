@@ -53,16 +53,16 @@ Apify.main(async()=>{
     const spreadsheetMetadata = await sheets.spreadsheets.get({spreadsheetId})
     const {title: firstSheetName, sheetId: firstSheetId} = spreadsheetMetadata.data.sheets[0].properties
     console.log('name of the first sheet', firstSheetName)
-    console.log('id of the first sheet', firstSheetId)
+    console.log('id of the first sheet', firstSheetId, "\n")
 
     const range = input.range || firstSheetName
 
     console.log(`Spreadsheets setup:`)
-    console.log('mode:',mode)
-    console.log('spreadsheet id:',spreadsheetId)
-    console.log('range:',range)
-    console.log('filter by field:', filterByField)
-    console.log('filter by equality:', filterByEquality)
+    console.log('Mode:',mode)
+    console.log('Spreadsheet id:',spreadsheetId)
+    console.log('Range:',range)
+    console.log('Filter by field:', filterByField)
+    console.log('Filter by equality:', filterByEquality, "\n")
 
     // LOAD DATA
     const defaultOptions = {
@@ -101,18 +101,15 @@ Apify.main(async()=>{
             throw new Error('We loaded 0 items from the dataset or crawler execution, finishing...')
         }
 
-        console.log(`We loaded ${newObjects.length} items from Apify storage`)
+        console.log(`We loaded ${newObjects.length} items from Apify storage \n`)
     }
 
     // we load previous rows if mode is append or backup is on
-    let rowsResponse
-    if(mode === 'append' || mode === 'modify' || createBackup){
-        rowsResponse = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range
-        }).catch(e=>console.log('getting previous rows failed with error:',e.message))
-        if(!rowsResponse || !rowsResponse.data) throw new Error(`We couldn't get previous rows so we cannot append or create backup!!`)
-    }
+    const rowsResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range
+    }).catch(e=>console.log('getting previous rows failed with error:',e.message))
+    if(!rowsResponse || !rowsResponse.data) throw new Error(`We couldn't load current data from the spreadsheet so we cannot continue!!`)
 
     let rowsToInsert
     if(mode === 'replace'){
@@ -147,7 +144,7 @@ Apify.main(async()=>{
     // maybe backup
     if(createBackup){
         if(rowsResponse.data.values){
-            console.log('saving backup...')
+            console.log('Saving backup...')
             await Apify.setValue('backup', rowsResponse.data.values)
         } else {
             console.log('There are currently no rows in the spreadsheet so we will not save backup...')
@@ -159,28 +156,7 @@ Apify.main(async()=>{
     console.log(`Total rows: ${rowsToInsert.length}, total cells: ${cellsToInsert}`)
     if(cellsToInsert > MAX_CELLS) throw new Error (`You reached the max limit of ${MAX_CELLS} cells. Try inserting less rows.`)
 
-    // trimming cells
-    console.log('deleting unused cells')
-    // trimming y axis
-    await sheets.spreadsheets.batchUpdate({
-        spreadsheetId,
-        resource: trimSheetRequest(rowsToInsert.length, null, firstSheetId)
-    }).catch(e => console.log('Deleting unused rows failed, maybe there were no usuned, Error:',e.message))
-
-    // trimming x axis
-    await sheets.spreadsheets.batchUpdate({
-        spreadsheetId,
-        resource: trimSheetRequest(null, rowsToInsert[0].length, firstSheetId)
-    }).catch(e => console.log('Deleting unused columns failed, maybe there were no usuned, Error:',e.message))
-
-    // clearing cells
-    console.log('clearing cells')
-    await sheets.spreadsheets.values.clear({
-        spreadsheetId,
-        range
-    })
-
-    console.log('inserting new cells')
+    console.log('Inserting new cells')
     await sheets.spreadsheets.values.update({
         spreadsheetId,
         range,
@@ -188,6 +164,27 @@ Apify.main(async()=>{
         resource:{values: rowsToInsert},
     })
     console.log('Items inserted...')
+
+    // trimming cells
+    console.log('Maybe deleting unused cells')
+    const height = rowsResponse.data.values && rowsResponse.data.values.length > rowsToInsert.length
+        ? rowsToInsert.length
+        : null
+    const width = rowsResponse.data.values && rowsResponse.data.values[0].length > rowsToInsert[0].length
+    ? rowsToInsert[0].length
+    : null
+    // trimming y axis
+    if(height || width){
+        if(height) console.log('Will delete unused rows')
+        if(width) console.log('Will delete unused columns')
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: trimSheetRequest(height, width, firstSheetId)
+        }).catch(e => console.log('Deleting unused cells failed, Error:',e.message))
+    } else {
+        console.log('No need to delete any rows or columns')
+    }
+
     console.log('Finishing actor...')
 })
 
