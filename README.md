@@ -13,6 +13,12 @@
 
 **google-spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or [crawler executions](https://www.apify.com/docs/crawler). It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
+## Changelog
+
+### v0.1 => v0.2 (latest)
+
+- Fixed bug that if you exceed the limit of imports per 100 second, it deleted the current data in the sheet. Now the actor fails and doesn't delete anything.
+- Cells are now not cleared before importing and they are trimmed only if needed (means less requests needed).
 
 ## Limits
 
@@ -47,7 +53,7 @@ This actor can be run in multiple different modes. Each run has to have only one
 
 > **Important!** - The maximum number of cells in the whole spreadsheet is 2 million! If the actor would ever need to import data that would exceed this limit, it will just throw an error, finish and not import anything.
 
-> **Important!** - No matter which mode you choose, the actor always trims the blank rows and columns, then clears them and recalculates how the data should be positioned in the sheet. There are 2 main reasons for this. First is to be maximally efficient with the number of rows and columns so any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (e.g. bigger arrays) we need to insert columns in the middle of the current columns so everything needs to be recalculated and moved.
+> **Important!** - No matter which mode you choose, the actor always trims the blank rows and columns, clears them and recalculates how the data should be positioned in the sheet. There are 2 main reasons for this. First is to be maximally efficient with the number of rows and columns so any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (e.g. bigger arrays) we need to insert columns in the middle of the current columns so everything needs to be recalculated and moved.
 
 ## Input
 
