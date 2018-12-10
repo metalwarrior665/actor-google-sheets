@@ -30,7 +30,7 @@ Apify.main(async()=>{
     }
     if(input.transformFunction && !transformFunction){
         try{
-            transformFunction = eval(input.filterFunction)
+            transformFunction = eval(input.transformFunction)
         } catch(e){
             console.log('Evaluation of the tranform function failed with error:',e)
         }
