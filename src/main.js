@@ -186,5 +186,7 @@ Apify.main(async()=>{
     }
 
     console.log('Finishing actor...')
+    console.log('URL of the updated spreadsheet:')
+    console.log(`https://docs.google.com/spreadsheets/d/${spreadsheetId}`)
 })
 
