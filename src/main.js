@@ -3,7 +3,7 @@ const { google } = require('googleapis');
 const csvParser =require('csvtojson')
 const {apifyGoogleAuth} = require('apify-google-auth')
 
-const {toRows, toObjects, updateRowsObjects, countCells, trimSheetRequest} = require('./utils')
+const {toRows, toObjects, updateRowsObjects, countCells, trimSheetRequest, retryingRequest, handleRequestError} = require('./utils')
 
 const MAX_CELLS = 2 * 1000 * 1000
 
@@ -89,7 +89,7 @@ Apify.main(async()=>{
             }).then(res=>res.items.toString()).catch(e=>console.log('could not load data from crawler'))
         }
 
-        if(!csv) throw (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
+        if(!csv) throw new Error (`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${input.datasetOrExecutionId}`)
 
         console.log('Data loaded from Apify storage')
 
@@ -105,10 +105,10 @@ Apify.main(async()=>{
     }
 
     // we load previous rows if mode is append or backup is on
-    const rowsResponse = await sheets.spreadsheets.values.get({
+    const rowsResponse = await retryingRequest(sheets.spreadsheets.values.get({
         spreadsheetId,
         range
-    }).catch(e=>console.log('getting previous rows failed with error:',e.message))
+    })).catch((e) => handleRequestError(e, 'Getting current rows'))
     if(!rowsResponse || !rowsResponse.data) throw new Error(`We couldn't load current data from the spreadsheet so we cannot continue!!`)
 
     let rowsToInsert
@@ -159,12 +159,12 @@ Apify.main(async()=>{
 
     // inserting cells
     console.log('Inserting new cells')
-    await sheets.spreadsheets.values.update({
+    await retryingRequest(sheets.spreadsheets.values.update({
         spreadsheetId,
         range,
         valueInputOption: 'RAW',
         resource:{values: rowsToInsert},
-    })
+    })).catch((e) => handleRequestError(e, 'Inserting new rows'))
     console.log('Items inserted...')
 
     // trimming cells
@@ -178,10 +178,10 @@ Apify.main(async()=>{
     if(height || width){
         if(height) console.log('Will delete unused rows')
         if(width) console.log('Will delete unused columns')
-        await sheets.spreadsheets.batchUpdate({
+        await retryingRequest(sheets.spreadsheets.batchUpdate({
             spreadsheetId,
             resource: trimSheetRequest(height, width, firstSheetId)
-        }).catch(e => console.log('Deleting unused cells failed, Error:',e.message))
+        })).catch(e => handleRequestError(e, 'Trimming excessive cells'))
     } else {
         console.log('No need to delete any rows or columns')
     }
