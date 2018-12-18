@@ -1,5 +1,28 @@
 const sortObj = require('sort-object');
 const md5 = require('md5');
+const { backOff } = require('exponential-backoff');
+
+exports.handleRequestError = (e, action) => {
+    console.log(`${action} failed with error: ${e.message}`);
+    console.dir(e);
+    throw new Error('Fail in the crucial reques');
+};
+
+exports.retryingRequest = async (request) => {
+    return backOff(
+        {
+            fn: () => request,
+            retry: (e, numberOfAttempts) => {
+                console.log(`retrying API call to google with atempt n. ${numberOfAttempts}`)
+                return e.message.includes('The service is currently unavailable')
+            },
+        },
+        {
+            numberOfAttempts: 6,
+            timeMultiple: 3,
+        },
+    );
+};
 
 exports.countCells = (rows) => rows[0].length * rows.length;
 
