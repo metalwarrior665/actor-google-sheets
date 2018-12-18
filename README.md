@@ -16,10 +16,15 @@
 
 ## Changelog
 
-### v0.1 => v0.2 (latest)
+### v0.1 => v0.2
 
 - Fixed bug that if you exceed the limit of imports per 100 second, it deleted the current data in the sheet. Now the actor fails and doesn't delete anything.
 - Cells are now not cleared before importing and they are trimmed only if needed (means less requests needed).
+
+### v0.2 => v0.3 (latest)
+
+- Reworked how `append` works. Now it recalculates and repaints all the cells. Also if used with `filterByField` and `filterByEquality`, it will filter even the data already in the spreadsheet. And lastly, `transformFunction` for `append` needs to return whole data that will be then displayed in the sheet. The reason for this is to fix a problem from v0.2 when sometimes old values could stay where there should be blank cells if the columns were moved.
+- `transformFunction` now takes an object with `newObjects` and `oldObjects` fields instead of having separate parameters. This is changed to avoid confusion which parameter is first.
 
 ## Limits
 
@@ -46,7 +51,7 @@ If you want to use more Google accounts inside one Apify account or locally then
 This actor can be run in multiple different modes. Each run has to have only one specific mode. Mode also affects how other options work (details are explained in the specific options).
 
 - `replace`: If there are any old data in the sheet, they are all cleaned and then new data are imported.
-- `append`: This mode adds new data as additional rows below the old rows already present in the sheet. Keep in mind that no old values are ever removed or changed in this mode but the columns are recalculated so some of them may move to the right.
+- `append`: This mode adds new data as additional rows below the old rows already present in the sheet. Keep in mind that the columns are recalculated so some of them may move to different cells if new columns are added in the middle.
 - `modify`: This mode doesn't import anything. It only loads the data from your sheets and applies any of the processing you set in the options.
 - `load backup`: This mode simply loads any backup rows from previous runs (look at backup option for details) and imports it to a sheet in replace style.
 
@@ -54,7 +59,7 @@ This actor can be run in multiple different modes. Each run has to have only one
 
 > **Important!** - The maximum number of cells in the whole spreadsheet is 2 million! If the actor would ever need to import data that would exceed this limit, it will just throw an error, finish and not import anything.
 
-> **Important!** - No matter which mode you choose, the actor always trims the blank rows and columns, clears them and recalculates how the data should be positioned in the sheet. There are 2 main reasons for this. First is to be maximally efficient with the number of rows and columns so any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (e.g. bigger arrays) we need to insert columns in the middle of the current columns so everything needs to be recalculated and moved.
+> **Important!** - No matter which mode you choose, the actor recalculates how the data should be positioned in the sheet, then updates all the cells and then trims the exceeding rows and columns. There are 2 main reasons for this. First is to be maximally efficient with the number of rows and columns so any unused rows/columns are trimmed of. The second reason is that if the new data have new fields (e.g. bigger arrays) we need to insert columns in the middle of the current columns so everything needs to be recalculated and moved.
 
 ## Input
 
@@ -75,11 +80,11 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
     - `createBackup` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true then after obtaining the data from the spreadsheet and before any manipulation, data are stored into the default key-value store under the key `backup`. Can be loaded in future run using `load backup` mode. Useful when you are not sure what you are doing and have valuable data in the spreadsheet already. **Default**: `false`.
 
 ## Filter options and transform function
-By default the behaviour of the import is straightforward. `replace` mode simply replaces the old rows with new rows, `append` simply adds new rows below the old ones and `modify` doesn't do anything (it is only usable with filter options or transform function). But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `filterByField`, `filterByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
+By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones and `modify` doesn't do anything (it is only usable with filter options or transform function). But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `filterByField`, `filterByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
 
 - **`filterByField`**: Items are evaluated to be equal if the provided field is equal between them.
-    - `append`: New items are checked against the old ones comparing the specified field. If the field is equal, new item is not appended. If more new items have the same field, only the last one is appended. The old items are not deduplicated between themselves.
-    - `replace`: Works like `append` but since it cares only about the new data all items are deduplicated so only the last item with the unique key is imported.
+    - `append`: Old and new data is put together and checked for duplicated. Only the first item is kept of duplicates are found.
+    - `replace`: Works like `append` but cares only about new data.
     - `modify`: Works exactly like `replace` only with old items instead of new ones.
 - **`filterByEquality`**: This options behaves very similarly to `filterByField` only the items are evaluated to be equal if all of their fields are the same. So if any the item has any unique field, it will be imported.
 
@@ -107,16 +112,16 @@ If you need more complicated filtering abillities or just do whatever you want w
 
 The function should always return an array in the `row-object` format which is what will be first converted to `rows` format and then imported to the sheet. The parameters differ based on the mode:
 
-- `append`: The function will receive exactly 2 parameters. First is a `row-object` array of the items from dataset or crawler execution and second is `row-object` array from the data you already have in the spreadsheet.
-- `replace`: The function will receive exactly 1 parameter. It is a `row-object` array of the items from dataset or crawler execution.
-- `modify`: The function will receive exactly 1 parameter. It is a `row-object` array from the data you already have in the spreadsheet.
+- `append`: The function will receive an object with `oldObjects` and `newObjects` properties as parameter. `oldObjects` is `row-object` is an array from the data you already have in the spreadsheet. `newObjects` is an `row-object` array of the items from dataset or crawler execution and second .
+- `replace`: The function will receive an object with `newObjects` properties as parameter. It is a `row-object` array of the items from dataset or crawler execution.
+- `modify`: The function will receive an object with `oldObjects` properties as parameter. It is a `row-object` array from the data you already have in the spreadsheet.
 
 Example of usage with `append` mode (let's imagine we want always only the cheapest product for each country):
 
 ```
-(newData, oldData) => {
+({ newObjects, oldObjects }) => {
     // First we put the data together into one array
-    const allData = newData.concat(oldData);
+    const allData = newObjects.concat(oldObjects);
 
     // We define an object that will hold a state about which item is the cheapest for each country
     const stateObject = {};

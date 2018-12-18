@@ -37,14 +37,14 @@ const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
         if (equality) return countHash(row);
         throw new Error('Nor field or equality was provided to filterUniqueRows function');
     };
-    if (!field && !equality) return newObjects;
+    if (!field && !equality) return oldObjects.concat(newObjects);
 
     const tempObj = {};
-    newObjects.forEach((row) => {
-        tempObj[rowIntoKey(row)] = row;
-    });
-    oldObjects.forEach((row) => {
-        tempObj[rowIntoKey(row)] = null;
+    oldObjects.concat(newObjects).forEach((row) => {
+        const key = rowIntoKey(row);
+        if (!tempObj[key]) {
+            tempObj[key] = row;
+        }
     });
     const filteredRows = Object.values(tempObj).filter((row) => !!row);
     return filteredRows;
@@ -54,30 +54,23 @@ const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
 exports.makeUniqueRows = makeUniqueRows;
 
 // works only if all objects in one array have the same keys
-exports.append = ({ oldObjects, newObjects, filterByField, filterByEquality, transformFunction }) => {
+exports.updateRowsObjects = ({ oldObjects, newObjects, filterByField, filterByEquality, transformFunction }) => {
     const oldKeys = oldObjects.length > 0 ? Object.keys(oldObjects[0]) : [];
     const newKeys = newObjects.length > 0 ? Object.keys(newObjects[0]) : [];
     const keys = union(oldKeys, newKeys);
     // if no field or equality - this is simple concat
-    const toConcat = transformFunction
-        ? transformFunction(newObjects, oldObjects)
+    const allObjects = transformFunction
+        ? transformFunction({ newObjects, oldObjects })
         : makeUniqueRows(oldObjects, newObjects, filterByField, filterByEquality);
-    const concated = oldObjects.concat(toConcat);
-    const updatedObjects = concated.map((objects) => {
-        const updatedObj = objects;
+    // const concated = oldObjects.concat(toConcat);
+    const updatedObjects = allObjects.map((object) => {
+        const updatedObj = object;
         keys.forEach((key) => {
-            if (!updatedObj[key]) updatedObj[key] = null;
+            if (!updatedObj[key]) updatedObj[key] = '';
         });
         return sortObj(updatedObj);
     });
     return updatedObjects;
-};
-
-exports.replace = ({ newObjects, filterByField, filterByEquality, transformFunction }) => {
-    if (transformFunction) {
-        return transformFunction(newObjects);
-    }
-    return makeUniqueRows([], newObjects, filterByField, filterByEquality);
 };
 
 exports.trimSheetRequest = (height, width, firstSheetId) => {

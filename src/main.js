@@ -3,7 +3,7 @@ const { google } = require('googleapis');
 const csvParser =require('csvtojson')
 const {apifyGoogleAuth} = require('apify-google-auth')
 
-const {toRows, toObjects, append, replace,  countCells, trimSheetRequest} = require('./utils')
+const {toRows, toObjects, updateRowsObjects, countCells, trimSheetRequest} = require('./utils')
 
 const MAX_CELLS = 2 * 1000 * 1000
 
@@ -113,7 +113,7 @@ Apify.main(async()=>{
 
     let rowsToInsert
     if(mode === 'replace'){
-        const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
+        const replacedObjects = updateRowsObjects({oldObjects: [], newObjects, filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'modify'){
@@ -121,16 +121,17 @@ Apify.main(async()=>{
             throw new Error('There are either no data in the sheet or only one header row so it cannot be modified!')
         }
         const oldObjects = toObjects(rowsResponse.data.values)
-        const replacedObjects = replace({newObjects: oldObjects, filterByField, filterByEquality, transformFunction})
+        const replacedObjects = updateRowsObjects({oldObjects, newObjects: [], filterByField, filterByEquality, transformFunction})
         rowsToInsert = toRows(replacedObjects)
     }
     if(mode === 'append'){
         if(!rowsResponse.data.values || rowsResponse.data.values.length <= 1){
-            const replacedObjects = replace({newObjects, filterByField, filterByEquality, transformFunction})
+            const replacedObjects = updateRowsObjects({oldObjects: [], newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(replacedObjects)
         } else {
             const oldObjects = toObjects(rowsResponse.data.values)
-            const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
+            // const appendedObjects = append({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
+            const appendedObjects = updateRowsObjects({oldObjects, newObjects, filterByField, filterByEquality, transformFunction})
             rowsToInsert = toRows(appendedObjects)
         }
     }
