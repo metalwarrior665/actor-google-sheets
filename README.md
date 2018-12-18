@@ -1,6 +1,7 @@
 # google-spreadsheet
 
 - [Overview](#overview)
+- [Changelog](#changelog)
 - [Usage](#usage)
 - [Authentication and authorization](#authentication-and-authorization)
 - [Modes](#modes)

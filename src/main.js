@@ -156,6 +156,7 @@ Apify.main(async()=>{
     console.log(`Total rows: ${rowsToInsert.length}, total cells: ${cellsToInsert}`)
     if(cellsToInsert > MAX_CELLS) throw new Error (`You reached the max limit of ${MAX_CELLS} cells. Try inserting less rows.`)
 
+    // inserting cells
     console.log('Inserting new cells')
     await sheets.spreadsheets.values.update({
         spreadsheetId,
@@ -173,7 +174,6 @@ Apify.main(async()=>{
     const width = rowsResponse.data.values && rowsResponse.data.values[0].length > rowsToInsert[0].length
     ? rowsToInsert[0].length
     : null
-    // trimming y axis
     if(height || width){
         if(height) console.log('Will delete unused rows')
         if(width) console.log('Will delete unused columns')
