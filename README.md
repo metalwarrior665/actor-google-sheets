@@ -26,6 +26,7 @@
 - Reworked how `append` works. Now it recalculates and repaints all the cells. Also if used with `filterByField` and `filterByEquality`, it will filter even the data already in the spreadsheet. And lastly, `transformFunction` for `append` needs to return whole data that will be then displayed in the sheet. The reason for this is to fix a problem from v0.2 when sometimes old values could stay where there should be blank cells if the columns were moved.
 - `transformFunction` now takes an object with `newObjects` and `oldObjects` fields instead of having separate parameters. This is changed to avoid confusion which parameter is first.
 - Added exponential backoff (automatic retries) for Google API calls if they return `Service unavailable` error.
+- Added `read` mode.
 
 ## Limits
 
@@ -54,6 +55,7 @@ This actor can be run in multiple different modes. Each run has to have only one
 - `replace`: If there are any old data in the sheet, they are all cleaned and then new data are imported.
 - `append`: This mode adds new data as additional rows below the old rows already present in the sheet. Keep in mind that the columns are recalculated so some of them may move to different cells if new columns are added in the middle.
 - `modify`: This mode doesn't import anything. It only loads the data from your sheets and applies any of the processing you set in the options.
+- `read`: This mode simply loads the data from the spreadsheet, optionally process them and save them as 'OUTPUT' json file to the default key-value store.
 - `load backup`: This mode simply loads any backup rows from previous runs (look at backup option for details) and imports it to a sheet in replace style.
 
 ## Inner workings
@@ -67,7 +69,7 @@ This actor can be run in multiple different modes. Each run has to have only one
 Most of Apify actors require a JSON input and this one is no exception. The input consists of one object with multiple options:
 
 - **`options`**<[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
-    - `mode` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Any of `replace`, `append`, `modify`, `load backup`. Explained above. **Required**
+    - `mode` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Any of `replace`, `append`, `modify`, `read`, `load backup`. Explained above. **Required**
     - `spreadsheetId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of your spreadsheet. It is the long hash in your spreadsheet URL. **Required**
     - `datasetOrExecutionId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the dataset or crawler execution where the data you want to import are located. **This option is mandatory for `replace` and `append` modes and not usable in other modes.**
     - `backupStore` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the store where the previous backup was saved. It is the id of the default key-value store of the run from which you want to load the backup. **This option is mandatory for "load backup" mode and not usable in other modes.**
@@ -81,13 +83,14 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
     - `createBackup` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true then after obtaining the data from the spreadsheet and before any manipulation, data are stored into the default key-value store under the key `backup`. Can be loaded in future run using `load backup` mode. Useful when you are not sure what you are doing and have valuable data in the spreadsheet already. **Default**: `false`.
 
 ## Filter options and transform function
-By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones and `modify` doesn't do anything (it is only usable with filter options or transform function). But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `filterByField`, `filterByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
+By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones, `modify` doesn't do anything (it is only usable with filter options or transform function) and `read` saves the data as they are to the key-value store. But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `filterByField`, `filterByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
 
-- **`filterByField`**: Items are evaluated to be equal if the provided field is equal between them.
-    - `append`: Old and new data is put together and checked for duplicated. Only the first item is kept of duplicates are found.
+- **`filterByEquality`**: Only unique items(rows) are kept in the data. If two items have all fields the same, their are considered duplicates and are removed from the data.
+- **`filterByField`**: Similar to `filterByEquality` but the uniquenes of items is compared only with one field. So if one items has certain value in this field, all other items with this value are considered duplicates and are removed from the data.
+    - `append`: Old and new data is put together and checked for duplicates. Only the first item is kept if duplicates are found.
     - `replace`: Works like `append` but cares only about new data.
-    - `modify`: Works exactly like `replace` only with old items instead of new ones.
-- **`filterByEquality`**: This options behaves very similarly to `filterByField` only the items are evaluated to be equal if all of their fields are the same. So if any the item has any unique field, it will be imported.
+    - `modify`: Works like `replace` but cares only about old data.
+    - `read`: Works the same as `modify`
 
 ### Transform function
 If you need more complicated filtering abillities or just do whatever you want with the data you can use `transformFunction` option. You should provide a stringified javascript function that will get the data as parameters and return transformed data. The data format is very similar to the JSON format of the datasets or crawler results only all the nested objects (objects and arrays) are flattened. It is basically an array of objects (items) with flattend fields, let's call it `row-object` format.
@@ -116,6 +119,7 @@ The function should always return an array in the `row-object` format which is w
 - `append`: The function will receive an object with `oldObjects` and `newObjects` properties as parameter. `oldObjects` is `row-object` is an array from the data you already have in the spreadsheet. `newObjects` is an `row-object` array of the items from dataset or crawler execution and second .
 - `replace`: The function will receive an object with `newObjects` properties as parameter. It is a `row-object` array of the items from dataset or crawler execution.
 - `modify`: The function will receive an object with `oldObjects` properties as parameter. It is a `row-object` array from the data you already have in the spreadsheet.
+- `read`: Works the same as `modify`.
 
 Example of usage with `append` mode (let's imagine we want always only the cheapest product for each country):
 

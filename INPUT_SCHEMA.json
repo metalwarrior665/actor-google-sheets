@@ -8,7 +8,7 @@
             "title": "Mode",
             "type": "string",
             "description": "How the rows will be imported to the spreadsheet",
-            "enum": ["append", "replace", "modify", "load backup"]
+            "enum": ["append", "replace", "modify", "read", "load backup"]
         },
         "spreadsheetId": {
             "title": "Spreadsheet id",

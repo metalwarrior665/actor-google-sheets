@@ -5,7 +5,7 @@ const { backOff } = require('exponential-backoff');
 exports.handleRequestError = (e, action) => {
     console.log(`${action} failed with error: ${e.message}`);
     console.dir(e);
-    throw new Error('Fail in the crucial reques');
+    throw new Error('Fail in the crucial request');
 };
 
 exports.retryingRequest = async (request) => {
