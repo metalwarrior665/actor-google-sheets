@@ -44,11 +44,15 @@ Apify.main(async () => {
         transformFunction,
     } = input;
 
+    console.log('Input parsed...')
+
     // Parsing stringified function
+    let parsedTransformFunction
     if (transformFunction) {
         console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n')
+        parsedTransformFunction = await evalFunction(transformFunction);
+        console.log('Transform function parsed...')
     }
-    const parsedTransformFunction = await evalFunction(transformFunction);
 
     // Authenticate
     console.log('\nPHASE - AUTHORIZATION\n')
@@ -57,6 +61,7 @@ Apify.main(async () => {
         tokensStore,
     };
     const auth = await apifyGoogleAuth(authOptions);
+    console.log('Authorization completed...')
 
     // Load sheets metadata
     console.log('\nPHASE - LOADING SPREADSHEET METADATA\n')
@@ -80,24 +85,29 @@ Apify.main(async () => {
     // Load data from Apify
     console.log('\nPHASE - LOADING DATA FROM APIFY\n')
     const newObjects = await loadFromApify({ mode, datasetOrExecutionId, limit, offset });
+    console.log('Data loaded from Apify...')
 
     // Load data from spreadsheet
     console.log('\nPHASE - LOADING DATA FROM SPREADSHEET\n')
     const values = await loadFromSpreadsheet({ sheets, spreadsheetId, spreadsheetRange });
+    console.log('Data loaded from spreadsheet...')
 
     // Processing data (different for each mode)
     console.log('\nPHASE - PROCESSING DATA\n')
     const rowsToInsert = await processMode({ mode, values, newObjects, filterByField, filterByEquality, transformFunction: parsedTransformFunction, backupStore });
+    console.log('Data processed...')
 
     // Save backup
     if (createBackup) {
         console.log('\nPHASE - SAVING BACKUP\n')
         await saveBackup(createBackup, values);
+        console.log('Backup saved...')
     }
 
     // Upload to spreadsheet
     console.log('\nPHASE - UPLOADING TO SPREADSHEET\n')
     await upload({ spreadsheetId, spreadsheetRange, rowsToInsert, values, sheets, firstSheetId, maxCells: MAX_CELLS });
+    console.log('Data uploaded...')
 
     console.log('\nPHASE - ACTOR FINISHED\n')
     console.log('URL of the updated spreadsheet:');
