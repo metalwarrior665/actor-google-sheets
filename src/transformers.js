@@ -52,14 +52,14 @@ const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
 exports.makeUniqueRows = makeUniqueRows;
 
 // works only if all objects in one array have the same keys
-exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], filterByField, filterByEquality, transformFunction }) => {
+exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByField, deduplicateByEquality, transformFunction }) => {
     const oldKeys = oldObjects.length > 0 ? Object.keys(oldObjects[0]) : [];
     const newKeys = newObjects.length > 0 ? Object.keys(newObjects[0]) : [];
     const keys = union(oldKeys, newKeys);
     // if no field or equality - this is simple concat
     const allObjects = transformFunction
         ? transformFunction({ newObjects, oldObjects })
-        : makeUniqueRows(oldObjects, newObjects, filterByField, filterByEquality);
+        : makeUniqueRows(oldObjects, newObjects, deduplicateByField, deduplicateByEquality);
     // const concated = oldObjects.concat(toConcat);
     const updatedObjects = allObjects.map((object) => {
         const updatedObj = object;

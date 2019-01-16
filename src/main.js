@@ -33,8 +33,8 @@ Apify.main(async () => {
         spreadsheetId,
         mode,
         datasetOrExecutionId,
-        filterByField,
-        filterByEquality,
+        deduplicateByField,
+        deduplicateByEquality,
         createBackup,
         tokensStore,
         limit,
@@ -79,8 +79,8 @@ Apify.main(async () => {
     console.log('Mode:', mode);
     console.log('Spreadsheet id:', spreadsheetId);
     console.log('Range:', spreadsheetRange);
-    console.log('Filter by field:', filterByField || false);
-    console.log('Filter by equality:', filterByEquality || false, "\n");
+    console.log('Deduplicate by field:', deduplicateByField || false);
+    console.log('deduplicated by equality:', deduplicateByEquality || false, "\n");
 
     // Load data from Apify
     console.log('\nPHASE - LOADING DATA FROM APIFY\n')
@@ -94,7 +94,7 @@ Apify.main(async () => {
 
     // Processing data (different for each mode)
     console.log('\nPHASE - PROCESSING DATA\n')
-    const rowsToInsert = await processMode({ mode, values, newObjects, filterByField, filterByEquality, transformFunction: parsedTransformFunction, backupStore });
+    const rowsToInsert = await processMode({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction: parsedTransformFunction, backupStore });
     console.log('Data processed...')
 
     // Save backup

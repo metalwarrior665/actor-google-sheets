@@ -8,7 +8,7 @@
 - [Inner workings](#inner-workings)
 - [Input](#input)
 - [Crawler webhook](#crawler-webhook)
-- [Filter options and transform function](#filter-options-and-transform-function)
+- [Deduplication options and transform function](#deduplication-options-and-transform-function)
 
 ## Overview
 
@@ -18,15 +18,21 @@
 
 ### v0.1 => v0.2
 
-- Fixed bug that if you exceed the limit of imports per 100 second, it deleted the current data in the sheet. Now the actor fails and doesn't delete anything.
+- Fixed bug that if you exceeded the limit of imports per 100 seconds, it deleted the current data in the sheet. Now the actor fails and doesn't delete anything.
 - Cells are now not cleared before importing and they are trimmed only if needed (means less requests needed).
 
-### v0.2 => v0.3 (latest)
+### v0.2 => v0.3
 
 - Reworked how `append` works. Now it recalculates and repaints all the cells. Also if used with `filterByField` and `filterByEquality`, it will filter even the data already in the spreadsheet. And lastly, `transformFunction` for `append` needs to return whole data that will be then displayed in the sheet. The reason for this is to fix a problem from v0.2 when sometimes old values could stay where there should be blank cells if the columns were moved.
 - `transformFunction` now takes an object with `newObjects` and `oldObjects` fields instead of having separate parameters. This is changed to avoid confusion which parameter is first.
 - Added exponential backoff (automatic retries) for Google API calls if they return `Service unavailable` error.
 - Added `read` mode.
+
+### v0.3 => v0.4 (latest)
+
+- Renamed `filterByField` to `deduplicateByField`
+- Renamed `filterByEquality` to `deduplicateByEquality`
+- Logs are now more descriptive about what is happening
 
 ## Limits
 
@@ -77,16 +83,16 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
     - `offset` <[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)> Defines how many items you want to skip from the beginning. **Default**: `0`.
     - `range` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Defines  which part of your spreadsheet will be impacted by the actor. It is specified in [A1 notation](https://developers.google.com/sheets/api/guides/concepts#a1_notation). **Default**: Name of the first sheet in the spreadsheet.
     - `tokensStore` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Defines in which key-value store authorization tokens are stored. This applies to both where they are initialy stored and where they are loaded from on each subsequent run. **Default**: `"google-oauth-tokens"`.
-    - `filterByEquality` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true, only unique items(rows) are imported. Items are unique between each other if any of their fields are not equal (deep equality). Only one of `filterByEquality`, `filterByField` and  `transformFunction` can be specified! **Default**: `false`.
-    - `filterByField` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Similar to `filterByEquality` but uniqueness is checked only by the one specified field which means the rest of the fields maybe different but the item will still not be imported. Only one of `filterByEquality`, `filterByField` and  `transformFunction` can be specified! **Default**: `null`.
-    - `transformFunction` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Custom function that can filter or modify the items in any way. It's requirements and behaviour [differs for each mode](#filter-options-and-transform-function). Only one of `filterByEquality`, `filterByField` and  `transformFunction` can be specified! **Default**: `null`
+    - `deduplicateByEquality` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true, only unique items(rows) are imported. Items are unique between each other if any of their fields are not equal (deep equality). Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `false`.
+    - `deduplicateByField` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Similar to `deduplicateByEquality` but uniqueness is checked only by the one specified field which means the rest of the fields maybe different but the item will still not be imported. Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `null`.
+    - `transformFunction` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Custom function that can filter or modify the items in any way. It's requirements and behaviour [differs for each mode](#filter-options-and-transform-function). Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `null`
     - `createBackup` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true then after obtaining the data from the spreadsheet and before any manipulation, data are stored into the default key-value store under the key `backup`. Can be loaded in future run using `load backup` mode. Useful when you are not sure what you are doing and have valuable data in the spreadsheet already. **Default**: `false`.
 
-## Filter options and transform function
-By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones, `modify` doesn't do anything (it is only usable with filter options or transform function) and `read` saves the data as they are to the key-value store. But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `filterByField`, `filterByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
+## Deduplicate options and transform function
+By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones, `modify` doesn't do anything (it is only usable with filter options or transform function) and `read` saves the data as they are to the key-value store. But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `deduplicateByField`, `deduplicateByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
 
-- **`filterByEquality`**: Only unique items(rows) are kept in the data. If two items have all fields the same, their are considered duplicates and are removed from the data.
-- **`filterByField`**: Similar to `filterByEquality` but the uniquenes of items is compared only with one field. So if one items has certain value in this field, all other items with this value are considered duplicates and are removed from the data.
+- **`deduplicateByEquality`**: Only unique items(rows) are kept in the data. If two items have all fields the same, their are considered duplicates and are removed from the data.
+- **`deduplicateByField`**: Similar to `deduplicateByEquality` but the uniquenes of items is compared only with one field. So if one items has certain value in this field, all other items with this value are considered duplicates and are removed from the data.
     - `append`: Old and new data is put together and checked for duplicates. Only the first item is kept if duplicates are found.
     - `replace`: Works like `append` but cares only about new data.
     - `modify`: Works like `replace` but cares only about old data.
