@@ -14,6 +14,8 @@ Apify.main(async () => {
     console.log('input');
     console.dir(input);
 
+    console.log('\nPHASE - PARSING INPUT\n')
+
     // Hack to handle crawler webhooks
     if (input.data) {
         let parsedData;
@@ -43,9 +45,13 @@ Apify.main(async () => {
     } = input;
 
     // Parsing stringified function
+    if (transformFunction) {
+        console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n')
+    }
     const parsedTransformFunction = await evalFunction(transformFunction);
 
     // Authenticate
+    console.log('\nPHASE - AUTHORIZATION\n')
     const authOptions = {
         scope: "spreadsheets",
         tokensStore,
@@ -53,39 +59,47 @@ Apify.main(async () => {
     const auth = await apifyGoogleAuth(authOptions);
 
     // Load sheets metadata
+    console.log('\nPHASE - LOADING SPREADSHEET METADATA\n')
     const sheets = google.sheets({ version: 'v4', auth });
 
     const spreadsheetMetadata = await sheets.spreadsheets.get({ spreadsheetId });
     const { title: firstSheetName, sheetId: firstSheetId } = spreadsheetMetadata.data.sheets[0].properties;
     console.log('name of the first sheet', firstSheetName);
-    console.log('id of the first sheet', firstSheetId, "\n");
+    console.log('id of the first sheet', firstSheetId);
 
     const spreadsheetRange = range || firstSheetName;
 
     // Log info
-    console.log(`Spreadsheets setup:`);
+    console.log(`\nPHASE - SPREADSHEET SETUP:\n`);
     console.log('Mode:', mode);
     console.log('Spreadsheet id:', spreadsheetId);
     console.log('Range:', spreadsheetRange);
-    console.log('Filter by field:', filterByField);
-    console.log('Filter by equality:', filterByEquality, "\n");
+    console.log('Filter by field:', filterByField || false);
+    console.log('Filter by equality:', filterByEquality || false, "\n");
 
     // Load data from Apify
+    console.log('\nPHASE - LOADING DATA FROM APIFY\n')
     const newObjects = await loadFromApify({ mode, datasetOrExecutionId, limit, offset });
 
     // Load data from spreadsheet
+    console.log('\nPHASE - LOADING DATA FROM SPREADSHEET\n')
     const values = await loadFromSpreadsheet({ sheets, spreadsheetId, spreadsheetRange });
 
     // Processing data (different for each mode)
+    console.log('\nPHASE - PROCESSING DATA\n')
     const rowsToInsert = await processMode({ mode, values, newObjects, filterByField, filterByEquality, transformFunction: parsedTransformFunction, backupStore });
 
     // Save backup
-    await saveBackup(createBackup, values);
+    if (createBackup) {
+        console.log('\nPHASE - SAVING BACKUP\n')
+        await saveBackup(createBackup, values);
+    }
 
     // Upload to spreadsheet
+    console.log('\nPHASE - UPLOADING TO SPREADSHEET\n')
     await upload({ spreadsheetId, spreadsheetRange, rowsToInsert, values, sheets, firstSheetId, maxCells: MAX_CELLS });
 
-    console.log('Finishing actor...');
+    console.log('\nPHASE - ACTOR FINISHED\n')
     console.log('URL of the updated spreadsheet:');
     console.log(`https://docs.google.com/spreadsheets/d/${spreadsheetId}`);
 })
