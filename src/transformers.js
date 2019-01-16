@@ -2,7 +2,7 @@ const sortObj = require('sort-object');
 const md5 = require('md5');
 
 exports.toObjects = (rows) => {
-    if (rows.length <= 1) return [];
+    if (!rows || rows.length <= 1) return [];
     const keys = rows[0];
     return rows.slice(1).map((row) => {
         const obj = {};
@@ -14,7 +14,7 @@ exports.toObjects = (rows) => {
 };
 
 exports.toRows = (objects) => {
-    if (objects.length === 0) return [];
+    if (!objects || objects.length === 0) return [];
     const header = Object.keys(objects[0]);
     const values = objects.map((object) => Object.values(object));
     return [header, ...values];
