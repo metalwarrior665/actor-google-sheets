@@ -90,7 +90,7 @@ Apify.main(async () => {
     // Load data from spreadsheet
     console.log('\nPHASE - LOADING DATA FROM SPREADSHEET\n')
     const values = await loadFromSpreadsheet({ sheets, spreadsheetId, spreadsheetRange });
-    console.log('Data loaded from spreadsheet...')
+    console.log(`${values.length} rows loaded from spreadsheet`)
 
     // Processing data (different for each mode)
     console.log('\nPHASE - PROCESSING DATA\n')
