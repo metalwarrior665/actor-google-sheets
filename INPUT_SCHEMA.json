@@ -64,6 +64,18 @@
             "title": "Create backup",
             "type": "boolean",
             "description": "Old rows from your spreadsheet will be saved to the default key-value store before importing new rows."
+        },
+        "backupStore": {
+            "title": "Backup store id",
+            "type": "string",
+            "description": "Id of the key-value store where the backup you want to load is located. Can pnly be used if mode is 'load-backup'",
+            "editor": "textfield"
+        },
+        "range": {
+            "title": "Range",
+            "type": "string",
+            "description": "Range of the spreadsheet in A1 notation where the actor should operate. Default is the first sheet.",
+            "editor": "textfield"
         }
     }
 }
