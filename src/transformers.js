@@ -58,7 +58,7 @@ exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByFi
     const keys = union(oldKeys, newKeys);
     // if no field or equality - this is simple concat
     const allObjects = transformFunction
-        ? transformFunction({ newObjects, oldObjects })
+        ? transformFunction({ datasetData: newObjects, spreadsheetData: oldObjects })
         : makeUniqueRows(oldObjects, newObjects, deduplicateByField, deduplicateByEquality);
     // const concated = oldObjects.concat(toConcat);
     const updatedObjects = allObjects.map((object) => {

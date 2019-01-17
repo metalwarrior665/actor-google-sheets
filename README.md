@@ -33,6 +33,7 @@
 - Renamed `filterByField` to `deduplicateByField`
 - Renamed `filterByEquality` to `deduplicateByEquality`
 - Logs are now more descriptive about what is happening
+- `transformFunction` input object properties were renamed from `oldObjects` to `spreadsheetData` and from `newObjects` to `datasetData`
 
 ## Limits
 
@@ -122,17 +123,17 @@ If you need more complicated filtering abillities or just do whatever you want w
 
 The function should always return an array in the `row-object` format which is what will be first converted to `rows` format and then imported to the sheet. The parameters differ based on the mode:
 
-- `append`: The function will receive an object with `oldObjects` and `newObjects` properties as parameter. `oldObjects` is `row-object` is an array from the data you already have in the spreadsheet. `newObjects` is an `row-object` array of the items from dataset or crawler execution and second .
-- `replace`: The function will receive an object with `newObjects` properties as parameter. It is a `row-object` array of the items from dataset or crawler execution.
-- `modify`: The function will receive an object with `oldObjects` properties as parameter. It is a `row-object` array from the data you already have in the spreadsheet.
+- `append`: The function will receive an object with `spreadsheetData` and `datasetData` properties as parameter. `spreadsheetData` is `row-object` is an array from the data you already have in the spreadsheet. `datasetData` is an `row-object` array of the items from dataset or crawler execution and second .
+- `replace`: The function will receive an object with `datasetData` properties as parameter. It is a `row-object` array of the items from dataset or crawler execution.
+- `modify`: The function will receive an object with `spreadsheetData` properties as parameter. It is a `row-object` array from the data you already have in the spreadsheet.
 - `read`: Works the same as `modify`.
 
 Example of usage with `append` mode (let's imagine we want always only the cheapest product for each country):
 
 ```
-({ newObjects, oldObjects }) => {
+({ datasetData, spreadsheetData }) => {
     // First we put the data together into one array
-    const allData = newObjects.concat(oldObjects);
+    const allData = datasetData.concat(spreadsheetData);
 
     // We define an object that will hold a state about which item is the cheapest for each country
     const stateObject = {};
