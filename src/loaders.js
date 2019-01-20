@@ -25,7 +25,7 @@ module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offse
             executionId: datasetOrExecutionId,
             simplified: 1,
             ...defaultOptions,
-        }).then((res) => res.items).catch((_) => console.log('could not load data from crawler'));
+        }).then((res) => res.items.toString()).catch((_) => console.log('could not load data from crawler'));
     }
 
     if (!csv) {
