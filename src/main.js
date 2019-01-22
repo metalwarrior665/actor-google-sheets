@@ -44,11 +44,20 @@ Apify.main(async () => {
         transformFunction,
     } = input;
 
+    // Input parsing
+
+    if (['replace', 'append'].includes(mode) && (typeof datasetOrExecutionId !== 'string' || datasetOrExecutionId.length !== 17)) {
+        throw new Error('WRONG INPUT! - datasetOrExecutionId field needs to be a string with 17 characters!')
+    }
+    if (mode !== 'load backup' && (typeof spreadsheetId !== 'string' || spreadsheetId.length !== 44)) {
+        throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!')
+    }
+
     console.log('Input parsed...')
 
     // Parsing stringified function
     let parsedTransformFunction
-    if (transformFunction) {
+    if (transformFunction && transformFunction.trim()) {
         console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n')
         parsedTransformFunction = await evalFunction(transformFunction);
         console.log('Transform function parsed...')

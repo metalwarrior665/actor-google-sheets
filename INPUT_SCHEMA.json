@@ -51,7 +51,8 @@
             "title": "Transform function",
             "type": "string",
             "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with 'Deduplicate by equality' or 'Deduplicate by field'",
-            "editor": "javascript"
+            "editor": "javascript",
+            "prefil": "// this code works the same as if you delete it and leave this area blank\n({ spreadsheetData, datasetData }) => {\n    return spreadsheetData.concat(datasetData);\n}"
         },
         "tokensStore": {
             "title": "Google OAuth tokens store",
