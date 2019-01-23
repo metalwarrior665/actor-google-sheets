@@ -33,6 +33,7 @@ module.exports.backupMock = [
     ['', 'alcohol', 'seller', 'Adam'],
     ['', 'music', 'developer', 'Sena'],
     ['', 'tabletop games', 'none', 'Hout'],
+    ['Lara', '', 'developer', 'Lukas'],
 ];
 
 module.exports.mockTransform = ({ spreadsheetData, datasetData }) => {

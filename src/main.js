@@ -53,11 +53,6 @@ Apify.main(async () => {
         throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!')
     }
 
-    // If mode is load backup, we return early
-    if (mode === 'load backup') {
-        await processMode({ mode, backupStore })
-    }
-
     console.log('Input parsed...')
 
     // Parsing stringified function
