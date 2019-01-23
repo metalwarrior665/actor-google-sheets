@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const { mock1, mock2, mockTransform, backupMock } = require('./mock-data.js');
 
-const NAME = 'lukaskrivka/google-spreadsheet-dev';
+const NAME = 'lukaskrivka/google-spreadsheet';
 const spreadsheetId = '1jCmoAhhhHKAo5Ost3DzI4D9GgJ8VgwNBOeQk6qfXqgs';
 const datasetIdOne = 'jbQP82GcRxBSQawPt';
 const datasetIdTwo = 'jwxFQxAxARuMY8BCg';
