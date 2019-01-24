@@ -1,4 +1,4 @@
-# google-spreadsheet
+# Google Spreadsheet Import & Export Data
 
 - [Overview](#overview)
 - [Changelog](#changelog)
@@ -12,7 +12,13 @@
 
 ## Overview
 
-**google-spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or [crawler executions](https://www.apify.com/docs/crawler). It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
+**Google Spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset), [crawler executions](https://www.apify.com/docs/crawler) or from a raw JSON. It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
+
+If Google Spreadsheet API is too complicated to you and you need to just import and export data, then use this Google Spreadsheet actor for import from another sheet or import datasets if you scrape websites using actors.
+
+For quick start, see our [tutorial](https://medium.com/p/43536b719029) for Google Spreadsheet actor.
+
+You can use this actor from any programming language (Javascript, Python, PHP) by calling [Apify API](https://www.apify.com/docs/api/v2).
 
 ## Changelog
 
@@ -34,6 +40,7 @@
 - Renamed `filterByEquality` to `deduplicateByEquality`
 - Logs are now more descriptive about what is happening
 - `transformFunction` input object properties were renamed from `oldObjects` to `spreadsheetData` and from `newObjects` to `datasetData`
+- Added support to import raw JSON instead of Apify storages
 
 ## Limits
 
@@ -78,7 +85,8 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
 - **`options`**<[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
     - `mode` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Any of `replace`, `append`, `modify`, `read`, `load backup`. Explained above. **Required**
     - `spreadsheetId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of your spreadsheet. It is the long hash in your spreadsheet URL. **Required**
-    - `datasetOrExecutionId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the dataset or crawler execution where the data you want to import are located. **This option is mandatory for `replace` and `append` modes and not usable in other modes.**
+    - `datasetOrExecutionId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the dataset or crawler execution where the data you want to import are located. **This option or `rawData` is mandatory for `replace` and `append` modes and cannot be used in other modes.**
+    - `rawData` <[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Indexed_collections_Arrays_and_typed_Arrays)> Array of raw JSON data. Can be either in table format (array of arrays) or in usual dataset format (array of objects). Objects can be nested, arrays not. Raw data cannot exceed 9MB.**This option or `rawdatasetOrExecutionIdData` is mandatory for `replace` and `append` modes and cannot be used in other modes.**
     - `backupStore` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the store where the previous backup was saved. It is the id of the default key-value store of the run from which you want to load the backup. **This option is mandatory for "load backup" mode and not usable in other modes.**
     - `limit` <[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)> Defines how many items (rows) you want to import. **Default**: Maximum (currently `250000`).
     - `offset` <[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)> Defines how many items you want to skip from the beginning. **Default**: `0`.
@@ -89,7 +97,76 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
     - `transformFunction` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Custom function that can filter or modify the items in any way. It's requirements and behaviour [differs for each mode](#filter-options-and-transform-function). Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `null`
     - `createBackup` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true then after obtaining the data from the spreadsheet and before any manipulation, data are stored into the default key-value store under the key `backup`. Can be loaded in future run using `load backup` mode. Useful when you are not sure what you are doing and have valuable data in the spreadsheet already. **Default**: `false`.
 
+## Importing data
+
+You have two options how you can import data with this actor:
+
+- From Apify storage - This option is useful for upload data from finished crawlers and actors. Simply provide id of the dataset or crawler execution.
+- In raw JSON form - This option is useful if you want to use this actor as a standalone API to import data to your spreadsheet.
+
+Both these options behave exactly the same in every other means e.g. in modes, transformFunction, deduplication etc.
+
+### Raw data format
+
+If you want to send the data in a raw JSON format, you need to pass these data to the `rawData` input parameter. You will also need to have an account on Apify so we can properly store your Google authentication tokens(you can opt-out anytime).
+
+Raw data can be supplied in two formats. Only depends on your needs which you will use.
+
+> **Important!** - Raw data cannot exceed 9MB which is a default limit for Apify actor inputs. If you want to upload more data, you can easily split it into more runs (they are fast and cheap).
+
+#### Table format (array of arrays)
+`rawData` should be an array of arrays where each of the arrays represents one row in the sheet. The first row should be a header row where the field names are defined. Every other row is a data row. It is important to have proper order in each array. If the field is null for some row, the array should contain empty string in that index. Data rows can have smaller length than the header row but if they are longer the extra data will be trimmed off. Arrays **cannot** contain other nested structures like objects or arrays! You have to flatten them in a format where `/` is a delimiter. E.g. `personal/hobbies/0`.
+
+```
+"rawData": [
+    ["name", "occupation", "email", "hobbies/0", "hobbies/1"],
+    ["John Doe", "developer", "john@google.com", "sport", "movies with Leonardo"],
+    ["Leonardo DiCaprio", "actor", "leonardo@google.com", "being rich", "climate change activism"]
+]
+```
+
+#### Dataset format (array of objects)
+`rawData` should be an array of objects where each object represents one row in the sheet. The keys of the objects will be transformed to a header row and the values will be inserted to the data rows. Objects don't need to have the same keys. If an object doesn't have a key that other object has, the row will have empty cell in that field.
+
+Objest **can** contain nested structures (objects and arrays) but in that case it will call Apify API to flatten the data which can take a little more time on large uploads so try to prefer flattened data.
+
+*Nested*:
+```
+"rawData": [
+    {
+        "name": "John Doe",
+        "email": "john@google.com",
+        "hobbies": ["sport", "movies with Leonardo", "dog walking"]
+    },
+    {
+        "name": "Leonardo DiCaprio",
+        "email": "leonardo@google.com",
+        "hobbies": ["being rich", "climate change activism"]
+    }
+]
+```
+
+*Flattened*:
+```
+"rawData": [
+    {
+        "name": "John Doe",
+        "email": "john@google.com",
+        "hobbies/0": "sport",
+        "hobbies/1": "movies with Leonardo",
+        "hobbies/2": "dog walking"
+    },
+    {
+        "name": "Leonardo DiCaprio",
+        "email": "leonardo@google.com",
+        "hobbies/0": "being rich",
+        "hobbies/1": "climate change activism"
+    }
+]
+```
+
 ## Deduplicate options and transform function
+
 By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones, `modify` doesn't do anything (it is only usable with filter options or transform function) and `read` saves the data as they are to the key-value store. But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `deduplicateByField`, `deduplicateByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
 
 - **`deduplicateByEquality`**: Only unique items(rows) are kept in the data. If two items have all fields the same, their are considered duplicates and are removed from the data.
