@@ -26,8 +26,7 @@
             "title": "Raw Data",
             "type": "array",
             "description": "Raw data JSON array. Can be array of arrays for direct row import or arrays of objects.",
-            "editor": "json",
-            "prefill": "[]"
+            "editor": "json"
         },
         "limit": {
             "title": "Limit items",
