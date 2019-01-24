@@ -13,7 +13,7 @@ const MAX_CELLS = 2 * 1000 * 1000;
 Apify.main(async () => {
     let input = await Apify.getValue('INPUT');
     console.log('input');
-    console.dir(input);
+    console.dir({ ...input, parsedData: "not diplayed, check input tab..." });
 
     console.log('\nPHASE - PARSING INPUT\n')
 
