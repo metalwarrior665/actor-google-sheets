@@ -49,7 +49,7 @@ Apify.main(async () => {
     // Input parsing
     const parsedRawData = await parseRawData({ mode, rawData })
 
-    if (parseRawData.length > 0 && datasetOrExecutionId) {
+    if (parsedRawData.length > 0 && datasetOrExecutionId) {
         throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetOrExecutionId"!')
     }
 

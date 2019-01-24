@@ -11,7 +11,11 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
     }
 
     if (mode !== 'replace' && 'mode' !== 'append') {
-        throw new Error('WRONG INPUT! - Can use rawData only with "replace" or "append" mode!')
+        throw new Error('WRONG INPUT! - Can use rawData only with "replace" or "append" mode!');
+    }
+
+    if (rawData.length === 0) {
+        return rawData;
     }
 
     const hasOnlyObjects = rawData.reduce((acc, item) => {
