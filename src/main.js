@@ -6,13 +6,14 @@ const processMode = require('./modes.js');
 const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
 const { saveBackup, evalFunction } = require('./utils.js');
+const { parseRawData } = require('./raw-data-parser.js');
 
 const MAX_CELLS = 2 * 1000 * 1000;
 
 Apify.main(async () => {
     let input = await Apify.getValue('INPUT');
     console.log('input');
-    console.dir(input);
+    console.dir({ ...input, parsedData: "not diplayed, check input tab..." });
 
     console.log('\nPHASE - PARSING INPUT\n')
 
@@ -33,6 +34,7 @@ Apify.main(async () => {
         spreadsheetId,
         mode,
         datasetOrExecutionId,
+        rawData = [],
         deduplicateByField,
         deduplicateByEquality,
         createBackup,
@@ -45,8 +47,17 @@ Apify.main(async () => {
     } = input;
 
     // Input parsing
+    const parsedRawData = await parseRawData({ mode, rawData })
 
-    if (['replace', 'append'].includes(mode) && (typeof datasetOrExecutionId !== 'string' || datasetOrExecutionId.length !== 17)) {
+    if (parsedRawData.length > 0 && datasetOrExecutionId) {
+        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetOrExecutionId"!')
+    }
+
+    if (
+        ['replace', 'append'].includes(mode)
+        && (typeof datasetOrExecutionId !== 'string' || datasetOrExecutionId.length !== 17)
+        && parsedRawData.length === 0
+    ) {
         throw new Error('WRONG INPUT! - datasetOrExecutionId field needs to be a string with 17 characters!')
     }
     if (mode !== 'load backup' && (typeof spreadsheetId !== 'string' || spreadsheetId.length !== 44)) {
@@ -93,7 +104,9 @@ Apify.main(async () => {
 
     // Load data from Apify
     console.log('\nPHASE - LOADING DATA FROM APIFY\n')
-    const newObjects = await loadFromApify({ mode, datasetOrExecutionId, limit, offset });
+    const newObjects = parsedRawData.length > 0
+        ? parsedRawData
+        : await loadFromApify({ mode, datasetOrExecutionId, limit, offset });
     console.log('Data loaded from Apify...')
 
     // Load data from spreadsheet

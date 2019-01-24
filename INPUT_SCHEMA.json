@@ -22,6 +22,12 @@
             "description": "Dataset or crawler execution id where the new data will be loaded from",
             "editor": "textfield"
         },
+        "rawData": {
+            "title": "Raw Data",
+            "type": "array",
+            "description": "Raw data JSON array. Can be array of arrays for direct row import or arrays of objects.",
+            "editor": "json"
+        },
         "limit": {
             "title": "Limit items",
             "type": "integer",

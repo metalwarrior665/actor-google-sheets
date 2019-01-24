@@ -7,6 +7,9 @@ exports.toObjects = (rows) => {
     return rows.slice(1).map((row) => {
         const obj = {};
         keys.forEach((key, i) => {
+            if (typeof row[i] === 'object') {
+                throw new Error('TRANSFORMING ERROR - Cannot convert nested objects to rows');
+            }
             obj[key] = row[i];
         });
         return obj;
