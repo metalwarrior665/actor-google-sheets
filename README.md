@@ -7,6 +7,7 @@
 - [Modes](#modes)
 - [Inner workings](#inner-workings)
 - [Input](#input)
+- [Importing data](#importing-data)
 - [Crawler webhook](#crawler-webhook)
 - [Deduplication options and transform function](#deduplication-options-and-transform-function)
 
@@ -106,7 +107,7 @@ You have two options how you can import data with this actor:
 
 Both these options behave exactly the same in every other means e.g. in modes, transformFunction, deduplication etc.
 
-### Raw data format
+### Raw data import
 
 If you want to send the data in a raw JSON format, you need to pass these data to the `rawData` input parameter. You will also need to have an account on Apify so we can properly store your Google authentication tokens(you can opt-out anytime).
 
