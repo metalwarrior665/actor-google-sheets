@@ -15,11 +15,13 @@
 
 **Google Spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset), [crawler executions](https://www.apify.com/docs/crawler) or from a raw JSON. It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
-If Google Spreadsheet API is too complicated to you and you need to just import and export data, then use this Google Spreadsheet actor for import from another sheet or import datasets if you scrape websites using actors.
+If official Google Spreadsheet API is too complicated for you and you need to just import and export data, then use this Google Spreadsheet actor for import from another sheet or import datasets if you scrape websites using actors or crawlers.
 
 For quick start, see our [tutorial](https://medium.com/p/43536b719029) for Google Spreadsheet actor.
 
-You can use this actor from any programming language (Javascript, Python, PHP) by calling [Apify API](https://www.apify.com/docs/api/v2).
+You can use this actor with any programming language (Javascript, Python, PHP) by calling [Apify API](https://www.apify.com/docs/api/v2).
+
+For deeper understanding how the actor works inside, look at the [Google Spreadsheet referrence](https://developers.google.com/sheets/api/).
 
 ## Changelog
 
