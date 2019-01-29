@@ -33,9 +33,9 @@ If you exceed these limits, the actor run will fail and no data will be imported
 
 ## Usage
 
-If you want to run the actor on **Apify platform** you need to open the [actor's page in the library](https://www.apify.com/lukaskrivka/google-spreadsheet) and then click on `Try in console` which will add it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and then you can run them. But keep in mind that usage is always charged towards the one who runs the actor. You can also let it run [automatically after every crawler run](#crawler-webhook).
+If you want to run the actor on **Apify platform** you need to open the [actor's page in the library](https://www.apify.com/lukaskrivka/google-sheets) and then click on `Try in console` which will add it to your account. When using public actors, you don't need to build them since everything is done by the author. You only need to provide an input and then you can run them. But keep in mind that usage is always charged towards the one who runs the actor. You can also let it run [automatically after every crawler run](#crawler-webhook).
 
-If on the other side you want to run the actor **locally**, you need to open the actor's [github page](https://github.com/metalwarrior665/actor-google-spreadsheet) and clone it to your computer.
+If on the other side you want to run the actor **locally**, you need to open the actor's [github page](https://github.com/metalwarrior665/actor-google-sheets) and clone it to your computer.
 
 ## Authentication and authorization
 
