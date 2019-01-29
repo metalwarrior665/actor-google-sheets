@@ -1,4 +1,4 @@
-# Google Spreadsheet Import & Export Data
+# Google Sheets Import & Export Data
 
 - [Overview](#overview)
 - [Changelog](#changelog)
@@ -13,37 +13,17 @@
 
 ## Overview
 
-**Google Spreadsheet** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset), [crawler executions](https://www.apify.com/docs/crawler) or from a raw JSON. It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
+**Google Sheets** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset), [crawler executions](https://www.apify.com/docs/crawler) or from a raw JSON. It can be run both on Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
-If official Google Spreadsheet API is too complicated for you and you need to just import and export data, then use this Google Spreadsheet actor for import from another sheet or import datasets if you scrape websites using actors or crawlers.
+If official Google Sheets API is too complicated for you and you need to just import and export data, then use this Google Sheets actor for import from another sheet or import datasets if you scrape websites using actors or crawlers.
 
-For quick start, see our [tutorial](https://medium.com/p/43536b719029) for Google Spreadsheet actor.
+For quick start, see our [tutorial](https://medium.com/p/43536b719029) for Google Sheets actor.
 
 You can use this actor with any programming language (Javascript, Python, PHP) by calling [Apify API](https://www.apify.com/docs/api/v2).
 
-For deeper understanding how the actor works inside, look at the [Google Spreadsheet referrence](https://developers.google.com/sheets/api/).
+For deeper understanding how the actor works inside, look at the [Google Sheets referrence](https://developers.google.com/sheets/api/).
 
 ## Changelog
-
-### v0.1 => v0.2
-
-- Fixed bug that if you exceeded the limit of imports per 100 seconds, it deleted the current data in the sheet. Now the actor fails and doesn't delete anything.
-- Cells are now not cleared before importing and they are trimmed only if needed (means less requests needed).
-
-### v0.2 => v0.3
-
-- Reworked how `append` works. Now it recalculates and repaints all the cells. Also if used with `filterByField` and `filterByEquality`, it will filter even the data already in the spreadsheet. And lastly, `transformFunction` for `append` needs to return whole data that will be then displayed in the sheet. The reason for this is to fix a problem from v0.2 when sometimes old values could stay where there should be blank cells if the columns were moved.
-- `transformFunction` now takes an object with `newObjects` and `oldObjects` fields instead of having separate parameters. This is changed to avoid confusion which parameter is first.
-- Added exponential backoff (automatic retries) for Google API calls if they return `Service unavailable` error.
-- Added `read` mode.
-
-### v0.3 => v0.4 (latest)
-
-- Renamed `filterByField` to `deduplicateByField`
-- Renamed `filterByEquality` to `deduplicateByEquality`
-- Logs are now more descriptive about what is happening
-- `transformFunction` input object properties were renamed from `oldObjects` to `spreadsheetData` and from `newObjects` to `datasetData`
-- Added support to import raw JSON instead of Apify storages
 
 ## Limits
 
