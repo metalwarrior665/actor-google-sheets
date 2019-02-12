@@ -23,7 +23,11 @@ exports.retryingRequest = async (request) => {
     );
 };
 
-exports.countCells = (rows) => rows[0].length * rows.length;
+exports.countCells = (rows) => {
+    if (!rows) return 0;
+    if (!rows[0]) return 0;
+    return rows[0].length * rows.length;
+};
 
 exports.trimSheetRequest = (height, width, firstSheetId) => {
     const payload = {
