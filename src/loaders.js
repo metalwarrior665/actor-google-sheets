@@ -1,7 +1,7 @@
 const Apify = require('apify');
 const csvParser = require('csvtojson');
 
-const { retryingRequest } = require('./utils.js');
+const { retryingRequest, handleRequestError } = require('./utils.js');
 
 module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offset }) => {
     if (mode !== 'append' && mode !== 'replace') {
