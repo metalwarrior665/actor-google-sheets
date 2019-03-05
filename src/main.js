@@ -13,17 +13,17 @@ const MAX_CELLS = 2 * 1000 * 1000;
 Apify.main(async () => {
     let input = await Apify.getValue('INPUT');
     console.log('input');
-    console.dir({ ...input, parsedData: "not diplayed, check input tab..." });
+    console.dir({ ...input, parsedData: 'not diplayed, check input tab directly...' });
 
-    console.log('\nPHASE - PARSING INPUT\n')
+    console.log('\nPHASE - PARSING INPUT\n');
 
     // Hack to handle crawler webhooks
     if (input.data) {
         let parsedData;
         try {
             parsedData = JSON.parse(input.data);
-        } catch(e) {
-            throw new Error('Data from crawler webhook could not be parsed with error:',e);
+        } catch (e) {
+            throw new Error(`Data from crawler webhook could not be parsed with error: ${e}`);
         }
         input = { ...parsedData, datasetOrExecutionId: input._id };
         console.log('We parsed the data into input:');
@@ -47,10 +47,10 @@ Apify.main(async () => {
     } = input;
 
     // Input parsing
-    const parsedRawData = await parseRawData({ mode, rawData })
+    const parsedRawData = await parseRawData({ mode, rawData });
 
     if (parsedRawData.length > 0 && datasetOrExecutionId) {
-        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetOrExecutionId"!')
+        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetOrExecutionId"!');
     }
 
     if (
@@ -58,26 +58,32 @@ Apify.main(async () => {
         && (typeof datasetOrExecutionId !== 'string' || datasetOrExecutionId.length !== 17)
         && parsedRawData.length === 0
     ) {
-        throw new Error('WRONG INPUT! - datasetOrExecutionId field needs to be a string with 17 characters!')
+        throw new Error('WRONG INPUT! - datasetOrExecutionId field needs to be a string with 17 characters!');
     }
     if (mode !== 'load backup' && (typeof spreadsheetId !== 'string' || spreadsheetId.length !== 44)) {
-        throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!')
+        throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!');
+    }
+    if (deduplicateByEquality && deduplicateByField) {
+        throw new Error('WRONG INPUT! - deduplicateByEquality and deduplicateByField cannot be used together!');
     }
 
-    console.log('Input parsed...')
+    console.log('Input parsed...');
 
     // Parsing stringified function
-    let parsedTransformFunction
+    let parsedTransformFunction;
     if (transformFunction && transformFunction.trim()) {
-        console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n')
+        console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n');
         parsedTransformFunction = await evalFunction(transformFunction);
-        console.log('Transform function parsed...')
+        if (typeof parsedTransformFunction === 'function' && (deduplicateByEquality || deduplicateByField)) {
+            throw new Error('WRONG INPUT! - transformFunction cannot be used together with deduplicateByEquality or deduplicateByField!');
+        }
+        console.log('Transform function parsed...');
     }
 
     // Authenticate
-    console.log('\nPHASE - AUTHORIZATION\n')
+    console.log('\nPHASE - AUTHORIZATION\n');
     const authOptions = {
-        scope: "spreadsheets",
+        scope: 'spreadsheets',
         tokensStore,
     };
     const auth = await apifyGoogleAuth(authOptions);

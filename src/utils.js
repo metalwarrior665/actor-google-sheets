@@ -12,8 +12,8 @@ exports.retryingRequest = async (request) => {
         {
             fn: () => request,
             retry: (e, numberOfAttempts) => {
-                console.log(`retrying API call to google with atempt n. ${numberOfAttempts}`)
-                return e.message.includes('The service is currently unavailable')
+                console.log(`retrying API call to google with atempt n. ${numberOfAttempts}`);
+                return e.message.includes('The service is currently unavailable');
             },
         },
         {
@@ -61,7 +61,7 @@ exports.trimSheetRequest = (height, width, firstSheetId) => {
 module.exports.saveBackup = async (createBackup, values) => {
     if (createBackup) {
         if (values) {
-            console.log('Saving backup...')
+            console.log('Saving backup...');
             await Apify.setValue('backup', values);
         } else {
             console.log('There are currently no rows in the spreadsheet so we will not save backup...');
@@ -73,12 +73,13 @@ module.exports.evalFunction = (transformFunction) => {
     let parsedTransformFunction;
     if (transformFunction) {
         try {
-            parsedTransformFunction = eval(transformFunction);
+            parsedTransformFunction = eval(transformFunction); // eslint-disable-line
         } catch (e) {
-            console.log('Evaluation of the tranform function failed with error:', e);
+            throw new Error('Evaluation of the tranform function failed with error. Please check if you inserted valid javascript code:', e);
         }
-        if (typeof parsedTransformFunction !== 'function') {
-            throw new Error('We were not able to parse transform function from input, therefore we cannot continue');
+        // Undefined is allowed because I wanted to allow have commented code in the transform function
+        if (typeof parsedTransformFunction !== 'function' && parsedTransformFunction !== undefined) {
+            throw new Error('Transform function has to be a javascript function or it has to be undefined (in case the whole code is commented out)');
         }
         return parsedTransformFunction;
     }
