@@ -11,7 +11,7 @@ exports.transformedArray =  [
         "discount_value": null,
         "discount_percent": 10
     }
-]   
+]
 
 exports.customObjFlat = {
     "title": "HP 678 Black Ink Cartridge",
