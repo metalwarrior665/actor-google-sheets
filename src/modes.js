@@ -37,4 +37,4 @@ module.exports = async ({ mode, values, newObjects, deduplicateByField, deduplic
         }
         return rows;
     }
-}
+};
