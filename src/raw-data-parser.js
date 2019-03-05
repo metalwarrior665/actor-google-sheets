@@ -39,7 +39,7 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
     }, true);
 
     if (!hasOnlyObjects && !hasOnlyArrays) {
-        throw new Error('WRONG INPUT - rawData needs to be either an array of objects or array of arrays!')
+        throw new Error('WRONG INPUT - rawData needs to be either an array of objects or array of arrays!');
     }
 
     if (hasOnlyArrays) {
@@ -79,7 +79,7 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
             return updatedData;
         }
 
-        console.log('Raw data have nested structures. We need to use Apify API to flatten them, this may take a while on large structures. If you don\'t have Apify account, this will not work');
+        console.log('Raw data have nested structures. We need to use Apify API to flatten them, this may take a while on large structures. If you don\'t have Apify account, this will not work'); // eslint-disable-line
 
         if (Apify.isAtHome()) {
             await Apify.pushData(rawData);
@@ -88,7 +88,7 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
 
         const { datasets } = Apify.client;
 
-        let { id, itemCount } = await datasets.getOrCreateDataset({
+        let { id, itemCount } = await datasets.getOrCreateDataset({ // eslint-disable-line
             datasetName: 'spreadsheet-temporary-container',
         });
         if (itemCount > 0) {
