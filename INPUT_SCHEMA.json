@@ -58,7 +58,7 @@
             "type": "string",
             "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with 'Deduplicate by equality' or 'Deduplicate by field'",
             "editor": "javascript",
-            "prefill": "// Uncomment this code only if you don't use \"Deduplicate by field\" or \"Deduplicate by equality\"\n//This code behaves as there was no transform function\n/*({ spreadsheetData, datasetData }) => {\n    return spreadsheetData.concat(datasetData);\n}*/"
+            "prefill": "// Uncomment this code only if you don't use \"Deduplicate by field\" or \"Deduplicate by equality\"\n// This code behaves as if there was no transform function\n/*({ spreadsheetData, datasetData }) => {\n    return spreadsheetData.concat(datasetData);\n}*/"
         },
         "tokensStore": {
             "title": "Google OAuth tokens store",
