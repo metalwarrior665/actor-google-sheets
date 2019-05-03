@@ -12,6 +12,7 @@ module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offse
         format: 'csv',
         limit,
         offset,
+        clean: true,
     };
     let csv;
 
