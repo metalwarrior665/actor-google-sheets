@@ -26,6 +26,7 @@ module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offse
             executionId: datasetOrExecutionId,
             simplified: 1,
             ...defaultOptions,
+            clean: false, // need to override this because it break crawlers
         }).then((res) => res.items.toString()).catch(() => console.log('could not load data from crawler'));
     }
 
