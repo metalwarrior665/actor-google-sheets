@@ -22,7 +22,6 @@ module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offse
     }).then((res) => res.items).catch(() => console.log('could not load data from dataset, will try crawler execution'));
 
     if (!csv) {
-        console.log('I\'m the new version');
         csv = await Apify.client.crawlers.getExecutionResults({
             executionId: datasetOrExecutionId,
             simplified: 1,
