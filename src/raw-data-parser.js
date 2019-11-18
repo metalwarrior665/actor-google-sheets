@@ -83,7 +83,7 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
 
         if (Apify.isAtHome()) {
             await Apify.pushData(rawData);
-            return loadFromApify({ mode, datasetOrExecutionId: process.env.APIFY_DEFAULT_DATASET_ID });
+            return loadFromApify({ mode, datasetId: process.env.APIFY_DEFAULT_DATASET_ID });
         }
 
         const { datasets } = Apify.client;

@@ -16,7 +16,7 @@
             "description": "Id of the spreadsheet from where the old data will be loaded",
             "editor": "textfield"
         },
-        "datasetOrExecutionId": {
+        "datasetId": {
             "title": "Dataset or crawler execution id",
             "type": "string",
             "description": "Dataset or crawler execution id where the new data will be loaded from",
@@ -31,16 +31,18 @@
         "limit": {
             "title": "Limit items",
             "type": "integer",
-            "description": "Number of items to take from the dataset or crawler execution. Default is up to 250000 for datasets and 100000 for crawlers.",
+            "description": "Number of items to take from the dataset. Default is 250000.",
             "unit": "items",
-            "minimum": 0
+            "minimum": 0,
+            "default": 250000
         },
         "offset": {
             "title": "Offset items",
             "type": "integer",
-            "description": "Number of items to skip from the dataset or crawler execution. Default is 0.",
+            "description": "Number of items to skip from the dataset. Default is 0.",
             "unit": "items",
-            "minimum": 0
+            "minimum": 0,
+            "default": 0
         },
         "deduplicateByField": {
             "title": "Deduplicate by field",

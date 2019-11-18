@@ -11,29 +11,16 @@ const { parseRawData } = require('./raw-data-parser.js');
 const MAX_CELLS = 2 * 1000 * 1000;
 
 Apify.main(async () => {
-    let input = await Apify.getValue('INPUT');
+    const input = await Apify.getValue('INPUT');
     console.log('input');
     console.dir({ ...input, parsedData: 'not diplayed, check input tab directly...' });
 
     console.log('\nPHASE - PARSING INPUT\n');
 
-    // Hack to handle crawler webhooks
-    if (input.data) {
-        let parsedData;
-        try {
-            parsedData = JSON.parse(input.data);
-        } catch (e) {
-            throw new Error(`Data from crawler webhook could not be parsed with error: ${e}`);
-        }
-        input = { ...parsedData, datasetOrExecutionId: input._id };
-        console.log('We parsed the data into input:');
-        console.dir(input);
-    }
-
     const {
         spreadsheetId,
         mode,
-        datasetOrExecutionId,
+        datasetId,
         rawData = [],
         deduplicateByField,
         deduplicateByEquality,
@@ -49,16 +36,16 @@ Apify.main(async () => {
     // Input parsing
     const parsedRawData = await parseRawData({ mode, rawData });
 
-    if (parsedRawData.length > 0 && datasetOrExecutionId) {
-        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetOrExecutionId"!');
+    if (parsedRawData.length > 0 && datasetId) {
+        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetId"!');
     }
 
     if (
         ['replace', 'append'].includes(mode)
-        && (typeof datasetOrExecutionId !== 'string' || datasetOrExecutionId.length !== 17)
+        && (typeof datasetId !== 'string' || datasetId.length !== 17)
         && parsedRawData.length === 0
     ) {
-        throw new Error('WRONG INPUT! - datasetOrExecutionId field needs to be a string with 17 characters!');
+        throw new Error('WRONG INPUT! - datasetId field needs to be a string with 17 characters!');
     }
     if (mode !== 'load backup' && (typeof spreadsheetId !== 'string' || spreadsheetId.length !== 44)) {
         throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!');
@@ -112,7 +99,7 @@ Apify.main(async () => {
     console.log('\nPHASE - LOADING DATA FROM APIFY\n');
     const newObjects = parsedRawData.length > 0
         ? parsedRawData
-        : await loadFromApify({ mode, datasetOrExecutionId, limit, offset });
+        : await loadFromApify({ mode, datasetId, limit, offset });
     console.log('Data loaded from Apify...');
 
     // Load data from spreadsheet

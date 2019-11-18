@@ -16,7 +16,7 @@ Apify.main(async () => {
     await Apify.call(
         NAME,
         {
-            datasetOrExecutionId: datasetIdOne,
+            datasetId: datasetIdOne,
             spreadsheetId,
             mode: 'replace',
         },
@@ -45,7 +45,7 @@ Apify.main(async () => {
     await Apify.call(
         NAME,
         {
-            datasetOrExecutionId: datasetIdTwo,
+            datasetId: datasetIdTwo,
             spreadsheetId,
             mode: 'append',
         },
@@ -105,7 +105,7 @@ Apify.main(async () => {
     const runInfo = await Apify.call(
         NAME,
         {
-            datasetOrExecutionId: datasetIdOne,
+            datasetId: datasetIdOne,
             spreadsheetId,
             mode: 'append',
             createBackup: true,

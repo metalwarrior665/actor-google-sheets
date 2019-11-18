@@ -3,7 +3,7 @@ const csvParser = require('csvtojson');
 
 const { retryingRequest, handleRequestError } = require('./utils.js');
 
-module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offset }) => {
+module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
     if (mode !== 'append' && mode !== 'replace') {
         return;
     }
@@ -14,32 +14,22 @@ module.exports.loadFromApify = async ({ mode, datasetOrExecutionId, limit, offse
         offset,
         clean: true,
     };
-    let csv;
 
-    const datasetInfo = await Apify.client.datasets.getDataset({ datasetId: datasetOrExecutionId }).catch(() => console.log('Did not find a dataset with this ID'));
+    const datasetInfo = await Apify.client.datasets.getDataset({ datasetId: datasetId }).catch(() => console.log('Did not find a dataset with this ID'));
     const simplified = datasetInfo && datasetInfo.actId === 'YPh5JENjSSR6vBf2E';
 
     if (simplified) {
         console.log('Will load simplifed results');
     }
 
-    csv = await Apify.client.datasets.getItems({
-        datasetId: datasetOrExecutionId,
+    const csv = await Apify.client.datasets.getItems({
+        datasetId,
         ...defaultOptions,
         simplified,
     }).then((res) => res.items).catch(() => console.log('could not load data from dataset, will try crawler execution'));
 
     if (!csv) {
-        csv = await Apify.client.crawlers.getExecutionResults({
-            executionId: datasetOrExecutionId,
-            simplified: 1,
-            ...defaultOptions,
-            clean: null, // need to override this because it break crawlers
-        }).then((res) => res.items.toString()).catch(() => console.log('could not load data from crawler'));
-    }
-
-    if (!csv) {
-        throw new Error(`We didn't find any dataset or crawler execution with provided datasetOrExecutionId: ${datasetOrExecutionId}`);
+        throw new Error(`We didn't find any dataset with provided datasetId: ${datasetId}`);
     }
 
     console.log('Data loaded from Apify storage');
