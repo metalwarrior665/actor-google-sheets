@@ -17,13 +17,15 @@
             "editor": "textfield"
         },
         "datasetId": {
-            "title": "Dataset or crawler execution id",
+            "title": "Dataset ID",
             "type": "string",
             "description": "Dataset or crawler execution id where the new data will be loaded from",
-            "editor": "textfield"
+            "editor": "textfield",
+            "sectionCaption": "Input data",
+            "sectionDescription": "Only fill in for `append` or `replace` mode. Choose either `Dataset ID` or `Raw data`. Limit and offset is optional."
         },
         "rawData": {
-            "title": "Raw Data",
+            "title": "Raw data",
             "type": "array",
             "description": "Raw data JSON array. Can be array of arrays for direct row import or arrays of objects.",
             "editor": "json"
@@ -48,7 +50,9 @@
             "title": "Deduplicate by field",
             "type": "string",
             "description": "Items will be deduplicated by value of this field. Cannot be used together with 'Deduplicate by equality' or 'Transform function'.",
-            "editor": "textfield"
+            "editor": "textfield",
+            "sectionCaption": "Deduplication and transformation",
+            "sectionDescription": "Choose up to one way to deduplicate or transform your data."
         },
         "deduplicateByEquality": {
             "title": "Deduplicate by equality",
@@ -61,6 +65,13 @@
             "description": "Custom function that will take new items and old items arrays as parameters and produces final array that will be imported.  Cannot be used together with 'Deduplicate by equality' or 'Deduplicate by field'",
             "editor": "javascript",
             "prefill": "// Uncomment this code only if you don't use \"Deduplicate by field\" or \"Deduplicate by equality\"\n// This code behaves as if there was no transform function\n/*({ spreadsheetData, datasetData }) => {\n    return spreadsheetData.concat(datasetData);\n}*/"
+        },
+        "range": {
+            "title": "Range",
+            "type": "string",
+            "description": "Range of the spreadsheet in A1 notation where the actor should operate. Default is the first sheet.",
+            "editor": "textfield",
+            "sectionCaption": "Miscellaneous"
         },
         "tokensStore": {
             "title": "Google OAuth tokens store",
@@ -78,12 +89,6 @@
             "title": "Backup store id",
             "type": "string",
             "description": "Id of the key-value store where the backup you want to load is located. Can pnly be used if mode is 'load-backup'",
-            "editor": "textfield"
-        },
-        "range": {
-            "title": "Range",
-            "type": "string",
-            "description": "Range of the spreadsheet in A1 notation where the actor should operate. Default is the first sheet.",
             "editor": "textfield"
         }
     }
