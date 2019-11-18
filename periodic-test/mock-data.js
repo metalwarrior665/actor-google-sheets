@@ -1,30 +1,30 @@
 module.exports.mock1 = [
     {
-        name: 'Lukas',
-        job: 'developer',
         'dogs/0': 'Lara',
         hobby: '',
+        job: 'developer',
+        name: 'Lukas',
     },
     {
-        name: 'Adam',
-        job: 'seller',
-        hobby: 'alcohol',
         'dogs/0': '',
+        hobby: 'alcohol',
+        job: 'seller',
+        name: 'Adam',
     },
 ];
 
 module.exports.mock2 = [
     {
-        name: 'Sena',
-        job: 'developer',
-        hobby: 'music',
         'dogs/0': '',
+        hobby: 'music',
+        job: 'developer',
+        name: 'Sena',
     },
     {
-        name: 'Hout',
-        job: 'none',
-        hobby: 'tabletop games',
         'dogs/0': '',
+        hobby: 'tabletop games',
+        job: 'none',
+        name: 'Hout',
     },
 ];
 

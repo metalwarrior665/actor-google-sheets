@@ -5,8 +5,8 @@ const { mock1, mock2, mockTransform, backupMock } = require('./mock-data.js');
 
 const NAME = 'lukaskrivka/google-sheets';
 const spreadsheetId = '1jCmoAhhhHKAo5Ost3DzI4D9GgJ8VgwNBOeQk6qfXqgs';
-const datasetIdOne = 'jbQP82GcRxBSQawPt';
-const datasetIdTwo = 'jwxFQxAxARuMY8BCg';
+const datasetIdOne = '5Zk7ESYNkED97XnGr';
+const datasetIdTwo = 'xYmpbqoXa4QP64eqA';
 
 Apify.main(async () => {
     // TEST 1
@@ -35,6 +35,8 @@ Apify.main(async () => {
     console.log('done - read');
 
     console.log('trying assertion');
+    console.dir(read1);
+    console.dir(mock1);
     assert.deepEqual(read1, mock1);
     console.log('assertion done');
 
@@ -64,6 +66,8 @@ Apify.main(async () => {
     console.log('done - read');
 
     console.log('trying assertion');
+    console.dir(read2);
+    console.dir(mock1.concat(mock2));
     assert.deepEqual(read2, mock1.concat(mock2));
     console.log('assertion done');
 
@@ -157,4 +161,6 @@ Apify.main(async () => {
     console.log('trying assertion');
     assert.deepEqual(read5, mock1.concat(mock2).slice(1));
     console.log('assertion done');
+
+    console.log('TEST SUCCESSFUL!!!');
 });
