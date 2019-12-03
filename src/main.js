@@ -5,7 +5,7 @@ const { apifyGoogleAuth } = require('apify-google-auth');
 const processMode = require('./modes.js');
 const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
-const { saveBackup, evalFunction } = require('./utils.js');
+const { saveBackup, evalFunction, retryingRequest, handleRequestError } = require('./utils.js');
 const { parseRawData } = require('./raw-data-parser.js');
 
 const MAX_CELLS = 2 * 1000 * 1000;
@@ -80,7 +80,7 @@ Apify.main(async () => {
     console.log('\nPHASE - LOADING SPREADSHEET METADATA\n');
     const sheets = google.sheets({ version: 'v4', auth });
 
-    const spreadsheetMetadata = await sheets.spreadsheets.get({ spreadsheetId });
+    const spreadsheetMetadata = await retryingRequest(sheets.spreadsheets.get({ spreadsheetId })).catch((e) => handleRequestError(e, 'Getting spreadsheet metadata'));
     const { title: firstSheetName, sheetId: firstSheetId } = spreadsheetMetadata.data.sheets[0].properties;
     console.log('name of the first sheet', firstSheetName);
     console.log('id of the first sheet', firstSheetId);
