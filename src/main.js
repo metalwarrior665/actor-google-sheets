@@ -17,6 +17,11 @@ Apify.main(async () => {
 
     console.log('\nPHASE - PARSING INPUT\n');
 
+    // We automatically make a webhook to work
+    if (input.resource && input.resource.defaultDatasetId && !input.datasetId) {
+        input.datasetId = input.resource.defaultDatasetId;
+    }
+
     const {
         spreadsheetId,
         mode,
