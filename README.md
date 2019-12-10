@@ -158,7 +158,7 @@ By default the behaviour of the import is straightforward. `replace` mode simply
 ### Transform function
 If you need more complicated filtering abillities or just do whatever you want with the data you can use `transformFunction` option. You should provide a stringified javascript function that will get the data as parameters and return transformed data. The data format is very similar to the JSON format of the datasets, only all the nested objects (objects and arrays) are flattened. It is basically an array of objects (items) with flattend fields, let's call it `row-object` format.
 
-```
+```json
 [{
     "sku": "234234234",
     "country": "US",
@@ -186,7 +186,7 @@ The function should always return an array in the `row-object` format which is w
 
 Example of usage with `append` mode (let's imagine we want always only the cheapest product for each country):
 
-```
+```javascript
 ({ datasetData, spreadsheetData }) => {
     // First we put the data together into one array
     const allData = datasetData.concat(spreadsheetData);
@@ -225,7 +225,7 @@ Raw data can be supplied in two formats. Only depends on your needs which you wi
 #### Table format (array of arrays)
 `rawData` should be an array of arrays where each of the arrays represents one row in the sheet. The first row should be a header row where the field names are defined. Every other row is a data row. It is important to have proper order in each array. If the field is null for some row, the array should contain empty string in that index. Data rows can have smaller length than the header row but if they are longer the extra data will be trimmed off. Arrays **cannot** contain other nested structures like objects or arrays! You have to flatten them in a format where `/` is a delimiter. E.g. `personal/hobbies/0`.
 
-```
+```json
 "rawData": [
     ["name", "occupation", "email", "hobbies/0", "hobbies/1"],
     ["John Doe", "developer", "john@google.com", "sport", "movies with Leonardo"],
@@ -239,7 +239,7 @@ Raw data can be supplied in two formats. Only depends on your needs which you wi
 Objest **can** contain nested structures (objects and arrays) but in that case it will call Apify API to flatten the data which can take a little more time on large uploads so try to prefer flattened data.
 
 *Nested*:
-```
+```json
 "rawData": [
     {
         "name": "John Doe",
@@ -255,7 +255,7 @@ Objest **can** contain nested structures (objects and arrays) but in that case i
 ```
 
 *Flattened*:
-```
+```json
 "rawData": [
     {
         "name": "John Doe",
