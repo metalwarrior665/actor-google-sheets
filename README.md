@@ -8,8 +8,10 @@
 - [Inner workings](#inner-workings)
 - [Input](#input)
 - [Importing data](#importing-data)
+- [Loading from Spreadsheet](#loading-from-spreadsheet)
 - [Webhooks](#Webhooks)
 - [Deduplication options and transform function](#deduplication-options-and-transform-function)
+- [Raw data import](#raw-data-import)
 
 ## Overview
 
@@ -87,66 +89,46 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
 You have two options how you can import data with this actor:
 
 - From Apify storage - This option is useful for upload data from finished actors and tasks. Simply provide id of the dataset.
-- In raw JSON form - This option is useful if you want to use this actor as a standalone API to import data to your spreadsheet.
+- In [raw JSON form](#raw-data-import) - This option is useful if you want to use this actor as a standalone API to import data to your spreadsheet.
 
 Both these options behave exactly the same in every other means e.g. in modes, transformFunction, deduplication etc.
 
-### Raw data import
+## Loading from Spreadsheet
 
-If you want to send the data in a raw JSON format, you need to pass these data to the `rawData` input parameter. You will also need to have an account on Apify so we can properly store your Google authentication tokens(you can opt-out anytime).
+With `read` mode, you can use this actor to load data from your spreadsheet into the actor.
 
-Raw data can be supplied in two formats. Only depends on your needs which you will use.
+From an actor, [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper), [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) or any Node.js program you can use the [`Apify.call`](https://sdk.apify.com/docs/api/apify#apifycallactid-input-options-promise-actorrun-typedefs-actorrun) or [`Apify.callTask`](https://sdk.apify.com/docs/api/apify#apifycalltasktaskid-input-options-promise-actorrun-typedefs-actorrun) (if you want to preset your other input) functions.
 
-> **Important!** - Raw data cannot exceed 9MB which is a default limit for Apify actor inputs. If you want to upload more data, you can easily split it into more runs (they are fast and cheap).
-
-#### Table format (array of arrays)
-`rawData` should be an array of arrays where each of the arrays represents one row in the sheet. The first row should be a header row where the field names are defined. Every other row is a data row. It is important to have proper order in each array. If the field is null for some row, the array should contain empty string in that index. Data rows can have smaller length than the header row but if they are longer the extra data will be trimmed off. Arrays **cannot** contain other nested structures like objects or arrays! You have to flatten them in a format where `/` is a delimiter. E.g. `personal/hobbies/0`.
-
-```
-"rawData": [
-    ["name", "occupation", "email", "hobbies/0", "hobbies/1"],
-    ["John Doe", "developer", "john@google.com", "sport", "movies with Leonardo"],
-    ["Leonardo DiCaprio", "actor", "leonardo@google.com", "being rich", "climate change activism"]
-]
+```javascript
+const sheetsInput = {
+    mode: 'read',
+    spreadsheetId: '1anU4EeWKxHEj2mAnB0tA2xGnkTdqXBSB76a7-FRLytr', // update to your ID
+};
+const myData = await Apify.call('lukaskrivka/google-sheets', sheetsInput);
 ```
 
-#### Dataset format (array of objects)
-`rawData` should be an array of objects where each object represents one row in the sheet. The keys of the objects will be transformed to a header row and the values will be inserted to the data rows. Objects don't need to have the same keys. If an object doesn't have a key that other object has, the row will have empty cell in that field.
+When calling from other programming languages, from a browser or from [Web Scraper](https://apify.com/apify/web-scraper) you have to use regular run-sync API. Here is an example from browser/Web Scraper using native browser [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) call.
 
-Objest **can** contain nested structures (objects and arrays) but in that case it will call Apify API to flatten the data which can take a little more time on large uploads so try to prefer flattened data.
-
-*Nested*:
-```
-"rawData": [
-    {
-        "name": "John Doe",
-        "email": "john@google.com",
-        "hobbies": ["sport", "movies with Leonardo", "dog walking"]
-    },
-    {
-        "name": "Leonardo DiCaprio",
-        "email": "leonardo@google.com",
-        "hobbies": ["being rich", "climate change activism"]
-    }
-]
+```javascript
+const runUrl = `https://api.apify.com/v2/acts/lukaskrivka~google-sheets/run-sync?token=<YOUR_API_TOKEN>`
+const sheetsInput = {
+    mode: 'read',
+    spreadsheetId: '1anU4EeWKxHEj2mAnB0tA2xGnkTdqXBSB76a7-FRLytr', // update to your ID
+};
+const fetchOptions = {
+    body: JSON.stringify(sheetsInput),
+    headers: { 'Content-Type': 'application/json' },
+};
+const myData = await fetch(runUrl, fetchOptions).then((response) => response.json());
 ```
 
-*Flattened*:
-```
-"rawData": [
-    {
-        "name": "John Doe",
-        "email": "john@google.com",
-        "hobbies/0": "sport",
-        "hobbies/1": "movies with Leonardo",
-        "hobbies/2": "dog walking"
-    },
-    {
-        "name": "Leonardo DiCaprio",
-        "email": "leonardo@google.com",
-        "hobbies/0": "being rich",
-        "hobbies/1": "climate change activism"
-    }
+`myData` has `row-object` format which means it is an array where each row is represented by object of fields and values:
+
+```javascript
+[
+    { name: 'Alan', surname: 'Turing' },
+    { name: 'Steve', surname: 'Jobs'},
+    // ...
 ]
 ```
 
@@ -162,7 +144,7 @@ Usually it is more convenient to **create a task** with predefined input that wi
 Don't forget that for the first time you need to run this actor manually so you properly [authorize and authenticate](#authentication-and-authorization).
 
 
-## Deduplicate options and transform function
+## Deduplication options and transform function
 
 By default the behaviour of the import is straightforward. `replace` mode simply replaces the old content with new rows, `append` simply adds new rows below the old ones, `modify` doesn't do anything (it is only usable with filter options or transform function) and `read` saves the data as they are to the key-value store. But for more complicated imports that require importing only unique items or any other custom functionality, you need to use one of the following options: `deduplicateByField`, `deduplicateByEquality` or `transformFunction`. Behaviour of each of these options is specific to each of the modes so if you need to do some more complicated workflow it is important to understand the interaction.
 
@@ -232,4 +214,62 @@ Example of usage with `append` mode (let's imagine we want always only the cheap
 }
 ```
 
+## Raw data import
+
+If you want to send the data in a raw JSON format, you need to pass these data to the `rawData` input parameter. You will also need to have an account on Apify so we can properly store your Google authentication tokens(you can opt-out anytime).
+
+Raw data can be supplied in two formats. Only depends on your needs which you will use.
+
+> **Important!** - Raw data cannot exceed 9MB which is a default limit for Apify actor inputs. If you want to upload more data, you can easily split it into more runs (they are fast and cheap).
+
+#### Table format (array of arrays)
+`rawData` should be an array of arrays where each of the arrays represents one row in the sheet. The first row should be a header row where the field names are defined. Every other row is a data row. It is important to have proper order in each array. If the field is null for some row, the array should contain empty string in that index. Data rows can have smaller length than the header row but if they are longer the extra data will be trimmed off. Arrays **cannot** contain other nested structures like objects or arrays! You have to flatten them in a format where `/` is a delimiter. E.g. `personal/hobbies/0`.
+
+```
+"rawData": [
+    ["name", "occupation", "email", "hobbies/0", "hobbies/1"],
+    ["John Doe", "developer", "john@google.com", "sport", "movies with Leonardo"],
+    ["Leonardo DiCaprio", "actor", "leonardo@google.com", "being rich", "climate change activism"]
+]
+```
+
+#### Dataset format (array of objects)
+`rawData` should be an array of objects where each object represents one row in the sheet. The keys of the objects will be transformed to a header row and the values will be inserted to the data rows. Objects don't need to have the same keys. If an object doesn't have a key that other object has, the row will have empty cell in that field.
+
+Objest **can** contain nested structures (objects and arrays) but in that case it will call Apify API to flatten the data which can take a little more time on large uploads so try to prefer flattened data.
+
+*Nested*:
+```
+"rawData": [
+    {
+        "name": "John Doe",
+        "email": "john@google.com",
+        "hobbies": ["sport", "movies with Leonardo", "dog walking"]
+    },
+    {
+        "name": "Leonardo DiCaprio",
+        "email": "leonardo@google.com",
+        "hobbies": ["being rich", "climate change activism"]
+    }
+]
+```
+
+*Flattened*:
+```
+"rawData": [
+    {
+        "name": "John Doe",
+        "email": "john@google.com",
+        "hobbies/0": "sport",
+        "hobbies/1": "movies with Leonardo",
+        "hobbies/2": "dog walking"
+    },
+    {
+        "name": "Leonardo DiCaprio",
+        "email": "leonardo@google.com",
+        "hobbies/0": "being rich",
+        "hobbies/1": "climate change activism"
+    }
+]
+```
 
