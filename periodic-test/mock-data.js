@@ -13,6 +13,19 @@ module.exports.mock1 = [
     },
 ];
 
+module.exports.mock1Dataset = [
+    {
+        dogs: ['Lara'],
+        job: 'developer',
+        name: 'Lukas',
+    },
+    {
+        hobby: 'alcohol',
+        job: 'seller',
+        name: 'Adam',
+    },
+];
+
 module.exports.mock2 = [
     {
         'dogs/0': '',
@@ -22,6 +35,19 @@ module.exports.mock2 = [
     },
     {
         'dogs/0': '',
+        hobby: 'tabletop games',
+        job: 'none',
+        name: 'Hout',
+    },
+];
+
+module.exports.mock2Dataset = [
+    {
+        hobby: 'music',
+        job: 'developer',
+        name: 'Sena',
+    },
+    {
         hobby: 'tabletop games',
         job: 'none',
         name: 'Hout',

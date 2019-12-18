@@ -1,166 +1,177 @@
 const Apify = require('apify');
 const assert = require('assert');
 
-const { mock1, mock2, mockTransform, backupMock } = require('./mock-data.js');
+const { mock1, mock2, mock1Dataset, mock2Dataset, mockTransform, backupMock } = require('./mock-data.js');
 
 const NAME = 'lukaskrivka/google-sheets';
 const spreadsheetId = '1jCmoAhhhHKAo5Ost3DzI4D9GgJ8VgwNBOeQk6qfXqgs';
-const datasetIdOne = '5Zk7ESYNkED97XnGr';
-const datasetIdTwo = 'xYmpbqoXa4QP64eqA';
 
 Apify.main(async () => {
-    // TEST 1
-    console.log('TEST-1');
-    // REPLACE
-    console.log('calling - replace');
-    await Apify.call(
-        NAME,
-        {
-            datasetId: datasetIdOne,
-            spreadsheetId,
-            mode: 'replace',
-        },
-    );
-    console.log('done - replace');
+    const datasetOne = await Apify.openDataset('SHEETS-TEST-1', { forceCloud: true });
+    await datasetOne.pushData(mock1Dataset);
+    const datasetIdOne = await datasetOne.getInfo().then((res) => res.id);
 
-    // REPLACE - READ
-    console.log('calling - read');
-    const read1 = await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'read',
-        },
-    ).then(((res) => res.output.body));
-    console.log('done - read');
+    const datasetTwo = await Apify.openDataset('SHEETS-TEST-2', { forceCloud: true });
+    await datasetTwo.pushData(mock2Dataset);
+    const datasetIdTwo = await datasetTwo.getInfo().then((res) => res.id);
 
-    console.log('trying assertion');
-    console.dir(read1);
-    console.dir(mock1);
-    assert.deepEqual(read1, mock1);
-    console.log('assertion done');
+    try {
+        // TEST 1
+        console.log('TEST-1');
+        // REPLACE
+        console.log('calling - replace');
+        await Apify.call(
+            NAME,
+            {
+                datasetId: datasetIdOne,
+                spreadsheetId,
+                mode: 'replace',
+            },
+        );
+        console.log('done - replace');
 
-    // TEST 2
-    console.log('TEST-2');
-    // APPEND
-    console.log('calling append');
-    await Apify.call(
-        NAME,
-        {
-            datasetId: datasetIdTwo,
-            spreadsheetId,
-            mode: 'append',
-        },
-    );
-    console.log('done - append');
+        // REPLACE - READ
+        console.log('calling - read');
+        const read1 = await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'read',
+            },
+        ).then(((res) => res.output.body));
+        console.log('done - read');
 
-    // APPEND - READ
-    console.log('calling - read');
-    const read2 = await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'read',
-        },
-    ).then(((res) => res.output.body));
-    console.log('done - read');
+        console.log('trying assertion');
+        console.dir(read1);
+        console.dir(mock1);
+        assert.deepEqual(read1, mock1);
+        console.log('assertion done');
 
-    console.log('trying assertion');
-    console.dir(read2);
-    console.dir(mock1.concat(mock2));
-    assert.deepEqual(read2, mock1.concat(mock2));
-    console.log('assertion done');
+        // TEST 2
+        console.log('TEST-2');
+        // APPEND
+        console.log('calling append');
+        await Apify.call(
+            NAME,
+            {
+                datasetId: datasetIdTwo,
+                spreadsheetId,
+                mode: 'append',
+            },
+        );
+        console.log('done - append');
 
-    // TEST 3
-    console.log('TEST 3');
+        // APPEND - READ
+        console.log('calling - read');
+        const read2 = await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'read',
+            },
+        ).then(((res) => res.output.body));
+        console.log('done - read');
 
-    // MODIFY
-    console.log('calling modify');
-    await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'modify',
-            transformFunction: mockTransform.toString(),
-        },
-    );
-    console.log('done - modify');
+        console.log('trying assertion');
+        console.dir(read2);
+        console.dir(mock1.concat(mock2));
+        assert.deepEqual(read2, mock1.concat(mock2));
+        console.log('assertion done');
 
-    // MODIFY - READ
-    console.log('calling - read');
-    const read3 = await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'read',
-        },
-    ).then(((res) => res.output.body));
-    console.log('done - read');
+        // TEST 3
+        console.log('TEST 3');
 
-    console.log('trying assertion');
-    assert.deepEqual(read3, mock1.concat(mock2).slice(1));
-    console.log('assertion done');
+        // MODIFY
+        console.log('calling modify');
+        await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'modify',
+                transformFunction: mockTransform.toString(),
+            },
+        );
+        console.log('done - modify');
 
-    // TEST 4
-    console.log('TEST-4');
+        // MODIFY - READ
+        console.log('calling - read');
+        const read3 = await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'read',
+            },
+        ).then(((res) => res.output.body));
+        console.log('done - read');
 
-    // APPEND
-    console.log('calling - append');
-    const runInfo = await Apify.call(
-        NAME,
-        {
-            datasetId: datasetIdOne,
-            spreadsheetId,
-            mode: 'append',
-            createBackup: true,
-            deduplicateByField: 'name',
-        },
-    );
-    const { defaultKeyValueStoreId } = runInfo;
-    console.log('done - append');
+        console.log('trying assertion');
+        assert.deepEqual(read3, mock1.concat(mock2).slice(1));
+        console.log('assertion done');
 
-    // APPEND - READ
-    console.log('calling - read');
-    const read4 = await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'read',
-        },
-    ).then(((res) => res.output.body));
-    console.log('done - read');
+        // TEST 4
+        console.log('TEST-4');
 
-    console.log('trying assertion');
-    assert.deepEqual(read4, mock1.concat(mock2).slice(1).concat(mock1.slice(0,1)));
-    console.log('assertion done');
+        // APPEND
+        console.log('calling - append');
+        const runInfo = await Apify.call(
+            NAME,
+            {
+                datasetId: datasetIdOne,
+                spreadsheetId,
+                mode: 'append',
+                createBackup: true,
+                deduplicateByField: 'name',
+            },
+        );
+        const { defaultKeyValueStoreId } = runInfo;
+        console.log('done - append');
 
-    // TEST 5
-    console.log('TEST-5');
-    //
-    console.log('calling - load backup');
-    await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'load backup',
-            backupStore: defaultKeyValueStoreId,
-        },
-    );
-    console.log('done - load backup');
+        // APPEND - READ
+        console.log('calling - read');
+        const read4 = await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'read',
+            },
+        ).then(((res) => res.output.body));
+        console.log('done - read');
 
-    console.log('calling - read');
-    const read5 = await Apify.call(
-        NAME,
-        {
-            spreadsheetId,
-            mode: 'read',
-        },
-    ).then(((res) => res.output.body));
-    console.log('done - read');
+        console.log('trying assertion');
+        assert.deepEqual(read4, mock1.concat(mock2).slice(1).concat(mock1.slice(0,1)));
+        console.log('assertion done');
 
-    console.log('trying assertion');
-    assert.deepEqual(read5, mock1.concat(mock2).slice(1));
-    console.log('assertion done');
+        // TEST 5
+        console.log('TEST-5');
+        //
+        console.log('calling - load backup');
+        await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'load backup',
+                backupStore: defaultKeyValueStoreId,
+            },
+        );
+        console.log('done - load backup');
 
-    console.log('TEST SUCCESSFUL!!!');
+        console.log('calling - read');
+        const read5 = await Apify.call(
+            NAME,
+            {
+                spreadsheetId,
+                mode: 'read',
+            },
+        ).then(((res) => res.output.body));
+        console.log('done - read');
+
+        console.log('trying assertion');
+        assert.deepEqual(read5, mock1.concat(mock2).slice(1));
+        console.log('assertion done');
+
+        console.log('TEST SUCCESSFUL!!!');
+    } finally {
+        await datasetOne.delete();
+        await datasetTwo.delete();
+    }
 });
