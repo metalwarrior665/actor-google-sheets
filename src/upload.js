@@ -1,6 +1,6 @@
 const { countCells, trimSheetRequest, retryingRequest, handleRequestError } = require('./utils');
 
-module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, sheets, firstSheetId }) => {
+module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, sheets, targetSheetId }) => {
     // ensuring max cells limit
     const cellsToInsert = countCells(rowsToInsert);
     console.log(`Total rows: ${rowsToInsert.length}, total cells: ${cellsToInsert}`);
@@ -31,7 +31,7 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
         if (width) console.log('Will delete unused columns');
         await retryingRequest(sheets.spreadsheets.batchUpdate({
             spreadsheetId,
-            resource: trimSheetRequest(height, width, firstSheetId),
+            resource: trimSheetRequest(height, width, targetSheetId),
         })).catch((e) => handleRequestError(e, 'Trimming excessive cells'));
     } else {
         console.log('No need to delete any rows or columns');

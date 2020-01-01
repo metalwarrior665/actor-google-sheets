@@ -86,11 +86,26 @@ Apify.main(async () => {
     const sheets = google.sheets({ version: 'v4', auth });
 
     const spreadsheetMetadata = await retryingRequest(sheets.spreadsheets.get({ spreadsheetId })).catch((e) => handleRequestError(e, 'Getting spreadsheet metadata'));
-    const { title: firstSheetName, sheetId: firstSheetId } = spreadsheetMetadata.data.sheets[0].properties;
-    console.log('name of the first sheet', firstSheetName);
-    console.log('id of the first sheet', firstSheetId);
+    const sheetsMetadata = spreadsheetMetadata.data.sheets.map((sheet) => sheet.properties);
+    const { title: firstSheetName, sheetId: firstSheetId } = sheetsMetadata[0];
+    console.log('name of the first sheet:', firstSheetName);
+    console.log('id of the first sheet:', firstSheetId);
 
     const spreadsheetRange = range || firstSheetName;
+
+    // This is important for trimming excess rows/columns
+    let targetSheetId;
+    if (!range) {
+        targetSheetId = firstSheetId;
+    } else {
+        const maybeTargetSheet = sheetsMetadata.find((sheet) => range.startsWith(sheet.title));
+        if (maybeTargetSheet) {
+            targetSheetId = maybeTargetSheet.sheetId;
+        } else {
+            console.log('ERROR: Cannot find target sheet! Excess cells will not be trimmed.');
+        }
+    }
+    console.log('Target sheet id:', targetSheetId);
 
     // Log info
     console.log('\nPHASE - SPREADSHEET SETUP:\n');
@@ -126,7 +141,7 @@ Apify.main(async () => {
 
     // Upload to spreadsheet
     console.log('\nPHASE - UPLOADING TO SPREADSHEET\n');
-    await upload({ spreadsheetId, spreadsheetRange, rowsToInsert, values, sheets, firstSheetId, maxCells: MAX_CELLS });
+    await upload({ spreadsheetId, spreadsheetRange, rowsToInsert, values, sheets, targetSheetId, maxCells: MAX_CELLS });
     console.log('Data uploaded...');
 
     console.log('\nPHASE - ACTOR FINISHED\n');

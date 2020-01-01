@@ -29,7 +29,7 @@ exports.countCells = (rows) => {
     return rows[0].length * rows.length;
 };
 
-exports.trimSheetRequest = (height, width, firstSheetId) => {
+exports.trimSheetRequest = (height, width, sheetId) => {
     const payload = {
         requests: [],
     };
@@ -37,7 +37,7 @@ exports.trimSheetRequest = (height, width, firstSheetId) => {
         payload.requests.push({
             deleteDimension: {
                 range: {
-                    sheetId: firstSheetId,
+                    sheetId,
                     dimension: 'ROWS',
                     startIndex: height,
                 },
@@ -48,7 +48,7 @@ exports.trimSheetRequest = (height, width, firstSheetId) => {
         payload.requests.push({
             deleteDimension: {
                 range: {
-                    sheetId: firstSheetId,
+                    sheetId,
                     dimension: 'COLUMNS',
                     startIndex: width,
                 },
