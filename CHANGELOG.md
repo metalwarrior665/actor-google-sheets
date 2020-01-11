@@ -7,3 +7,6 @@
 
 #### 2019-12-31
 - Fixed: Excess rows/columns were wrongly trimmed if the range was not the first sheet. May have caused removal of data in the first sheet.
+
+#### 2020-01-11
+- Added: Option to read from public spreadsheets without authorization (pass `publicSpreadsheet: true` to the input).

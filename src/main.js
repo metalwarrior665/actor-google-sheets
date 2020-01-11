@@ -5,8 +5,8 @@ const { apifyGoogleAuth } = require('apify-google-auth');
 const processMode = require('./modes.js');
 const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
-const { saveBackup, evalFunction, retryingRequest, handleRequestError } = require('./utils.js');
-const { parseRawData } = require('./raw-data-parser.js');
+const { saveBackup, retryingRequest, handleRequestError } = require('./utils.js');
+const validateAndParseInput = require('./validate-parse-input.js');
 
 const MAX_CELLS = 2 * 1000 * 1000;
 
@@ -24,9 +24,9 @@ Apify.main(async () => {
 
     const {
         spreadsheetId,
+        publicSpreadsheet = false,
         mode,
         datasetId,
-        rawData = [],
         deduplicateByField,
         deduplicateByEquality,
         createBackup,
@@ -35,55 +35,34 @@ Apify.main(async () => {
         offset,
         range,
         backupStore,
-        transformFunction,
     } = input;
 
-    // Input parsing
-    const parsedRawData = await parseRawData({ mode, rawData });
-
-    if (parsedRawData.length > 0 && datasetId) {
-        throw new Error('WRONG INPUT! - Use only one of "rawData" and "datasetId"!');
-    }
-
-    if (
-        ['replace', 'append'].includes(mode)
-        && (typeof datasetId !== 'string' || datasetId.length !== 17)
-        && parsedRawData.length === 0
-    ) {
-        throw new Error('WRONG INPUT! - datasetId field needs to be a string with 17 characters!');
-    }
-    if (mode !== 'load backup' && (typeof spreadsheetId !== 'string' || spreadsheetId.length !== 44)) {
-        throw new Error('WRONG INPUT! - spreadsheetId field needs to be a string with 44 characters!');
-    }
-    if (deduplicateByEquality && deduplicateByField) {
-        throw new Error('WRONG INPUT! - deduplicateByEquality and deduplicateByField cannot be used together!');
-    }
-
+    const { rawData, transformFunction } = await validateAndParseInput(input);
     console.log('Input parsed...');
 
-    // Parsing stringified function
-    let parsedTransformFunction;
-    if (transformFunction && transformFunction.trim()) {
-        console.log('\nPHASE - PARSING TRANSFORM FUNCTION\n');
-        parsedTransformFunction = await evalFunction(transformFunction);
-        if (typeof parsedTransformFunction === 'function' && (deduplicateByEquality || deduplicateByField)) {
-            throw new Error('WRONG INPUT! - transformFunction cannot be used together with deduplicateByEquality or deduplicateByField!');
-        }
-        console.log('Transform function parsed...');
-    }
+    // We have to do this to get rid of the global env var so it cannot be stolen in the user functions
+    const apiKey = process.env.API_KEY;
+    delete process.env.API_KEY;
 
-    // Authenticate
-    console.log('\nPHASE - AUTHORIZATION\n');
-    const authOptions = {
-        scope: 'spreadsheets',
-        tokensStore,
-    };
-    const auth = await apifyGoogleAuth(authOptions);
-    console.log('Authorization completed...');
+    let auth;
+    if (!publicSpreadsheet) {
+        // Authenticate
+        console.log('\nPHASE - AUTHORIZATION\n');
+        const authOptions = {
+            scope: 'spreadsheets',
+            tokensStore,
+        };
+
+        // I have to reviews security of our internal tokens. Right now, they are opened in my KV. So probably save to secret env var?
+        auth = await apifyGoogleAuth(authOptions);
+        console.log('Authorization completed...');
+    } else {
+        console.log('\nPHASE - SKIPPING AUTHORIZATION (public spreadsheet)\n');
+    }
 
     // Load sheets metadata
     console.log('\nPHASE - LOADING SPREADSHEET METADATA\n');
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = google.sheets({ version: 'v4', auth: auth || apiKey });
 
     const spreadsheetMetadata = await retryingRequest(sheets.spreadsheets.get({ spreadsheetId })).catch((e) => handleRequestError(e, 'Getting spreadsheet metadata'));
     const sheetsMetadata = spreadsheetMetadata.data.sheets.map((sheet) => sheet.properties);
@@ -117,8 +96,8 @@ Apify.main(async () => {
 
     // Load data from Apify
     console.log('\nPHASE - LOADING DATA FROM APIFY\n');
-    const newObjects = parsedRawData.length > 0
-        ? parsedRawData
+    const newObjects = rawData.length > 0
+        ? rawData
         : await loadFromApify({ mode, datasetId, limit, offset });
     console.log('Data loaded from Apify...');
 
@@ -129,7 +108,7 @@ Apify.main(async () => {
 
     // Processing data (different for each mode)
     console.log('\nPHASE - PROCESSING DATA\n');
-    const rowsToInsert = await processMode({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction: parsedTransformFunction, backupStore }); // eslint-disable-line
+    const rowsToInsert = await processMode({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction, backupStore }); // eslint-disable-line
     console.log('Data processed...');
 
     // Save backup

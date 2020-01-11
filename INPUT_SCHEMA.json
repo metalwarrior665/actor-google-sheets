@@ -16,6 +16,12 @@
             "description": "Id of the spreadsheet from where the old data will be loaded",
             "editor": "textfield"
         },
+        "publicSpreadsheet": {
+            "title": "Public spreadsheet (read-only)",
+            "type": "boolean",
+            "description": "If checked, you don't need to authorize. You have to publish your spreadsheet and it works only in read mode",
+            "default": false
+        },
         "datasetId": {
             "title": "Dataset ID",
             "type": "string",

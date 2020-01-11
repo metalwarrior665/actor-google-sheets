@@ -49,6 +49,9 @@ After you authorize for the first time, tokens are stored in your key-value stor
 
 If you want to use more Google accounts inside one Apify account or locally then each Google account needs to have a different `tokensStore` and you need to track which tokens belong to which account by naming the store properly.
 
+#### Public spreadsheet (no authorization)
+If you don't mind publishing your spreadsheet, you can use this actor without authorization for `read` mode. Just pass `publicSpreadsheet: true` to the input. To limit the possibility to abuse our google API, public spreadsheet without authorization will work out of the box only on Apify platform using secret enviroment variable. If you want to run public mode locally, you have to create your own project in Google console and pass API_KEY environment variable to your actor process like `API_KEY=AIzaSyAPijSDFsdfSSf3kvGVsdfsdfsdsdnAVbcZb5Y apify run -p` (replace with real API key from Google console)
+
 ## Modes
 
 This actor can be run in multiple different modes. Each run has to have only one specific mode. Mode also affects how other options work (details are explained in the specific options).
@@ -72,6 +75,7 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
 - **`options`**<[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)>
     - `mode` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Any of `replace`, `append`, `modify`, `read`, `load backup`. Explained above. **Required**
     - `spreadsheetId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of your spreadsheet. It is the long hash in your spreadsheet URL. **Required**
+    - `publicSpreadsheet` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true, you don't need to authorize. You have to publish your spreadsheet and it works only in read mode. More in [authorization](#authentication-and-authorization).
     - `datasetId` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the dataset where the data you want to import are located. **This option or `rawData` is mandatory for `replace` and `append` modes and cannot be used in other modes.**
     - `rawData` <[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Indexed_collections_Arrays_and_typed_Arrays)> Array of raw JSON data. Can be either in table format (array of arrays) or in usual dataset format (array of objects). Objects can be nested, arrays not. Raw data cannot exceed 9MB.**This option or `datasetId` is mandatory for `replace` and `append` modes and cannot be used in other modes.**
     - `backupStore` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Id of the store where the previous backup was saved. It is the id of the default key-value store of the run from which you want to load the backup. **This option is mandatory for "load backup" mode and not usable in other modes.**
