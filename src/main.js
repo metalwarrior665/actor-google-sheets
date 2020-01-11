@@ -35,6 +35,7 @@ Apify.main(async () => {
         offset,
         range,
         backupStore,
+        googleKeys
     } = input;
 
     const { rawData, transformFunction } = await validateAndParseInput(input);
@@ -51,6 +52,7 @@ Apify.main(async () => {
         const authOptions = {
             scope: 'spreadsheets',
             tokensStore,
+            keys: googleKeys,
         };
 
         // I have to reviews security of our internal tokens. Right now, they are opened in my KV. So probably save to secret env var?

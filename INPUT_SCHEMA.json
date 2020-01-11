@@ -96,6 +96,12 @@
             "type": "string",
             "description": "Id of the key-value store where the backup you want to load is located. Can pnly be used if mode is 'load-backup'",
             "editor": "textfield"
+        },
+        "googleKeys": {
+            "title": "Google Developer Console keys",
+            "type": "object",
+            "description": "If you want to use this actor locally or with your own version, you have to provide your own keys",
+            "editor": "json"
         }
     }
 }

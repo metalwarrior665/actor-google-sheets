@@ -47,10 +47,13 @@ If you use this actor for the first time, you have to login with the same Google
 
 After you authorize for the first time, tokens are stored in your key-value store (option `tokensStore` which is by default `google-oauth-tokens`) and you don't need to authorize again. So after the first usage, you can fully automate the actor.
 
-If you want to use more Google accounts inside one Apify account or locally then each Google account needs to have a different `tokensStore` and you need to track which tokens belong to which account by naming the store properly.
+If you want to use more Google accounts inside one Apify account then each Google account needs to have a different `tokensStore` and you need to track which tokens belong to which account by naming the store properly.
 
 #### Public spreadsheet (no authorization)
 If you don't mind publishing your spreadsheet, you can use this actor without authorization for `read` mode. Just pass `publicSpreadsheet: true` to the input. To limit the possibility to abuse our google API, public spreadsheet without authorization will work out of the box only on Apify platform using secret enviroment variable. If you want to run public mode locally, you have to create your own project in Google console and pass API_KEY environment variable to your actor process like `API_KEY=AIzaSyAPijSDFsdfSSf3kvGVsdfsdfsdsdnAVbcZb5Y apify run -p` (replace with real API key from Google console)
+
+#### Local or non-official usage
+The official actor relies on `CLIENT_SECRET` environment variable being set. This assures that official API integration is used. If you want to use this actor locally or copy the source code, you will need to create your own project in [Google Developer Console](https://console.developers.google.com/), create your own credentials and pass them correctly to the `googleKeys` input variable. More explained in the [Apify Google Auth library](https://www.npmjs.com/package/apify-google-auth).
 
 ## Modes
 
@@ -87,6 +90,7 @@ Most of Apify actors require a JSON input and this one is no exception. The inpu
     - `deduplicateByField` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Similar to `deduplicateByEquality` but uniqueness is checked only by the one specified field which means the rest of the fields maybe different but the item will still not be imported. Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `null`.
     - `transformFunction` <[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)> Custom function that can filter or modify the items in any way. It's requirements and behaviour [differs for each mode](#filter-options-and-transform-function). Only one of `deduplicateByEquality`, `deduplicateByField` and  `transformFunction` can be specified! **Default**: `null`
     - `createBackup` <[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)> If true then after obtaining the data from the spreadsheet and before any manipulation, data are stored into the default key-value store under the key `backup`. Can be loaded in future run using `load backup` mode. Useful when you are not sure what you are doing and have valuable data in the spreadsheet already. **Default**: `false`.
+    - `googleKeys` <[object]()> Only pass this for usage of outside the official actor (local or elsewhere). This should contain installed type of credentials and you need to pass it as an object with fields `{ client_id, client_secret, redirect_uri }`.
 
 ## Importing data
 
