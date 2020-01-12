@@ -1,5 +1,6 @@
 const Apify = require('apify');
 const { backOff } = require('exponential-backoff');
+const safeEval = require('safe-eval');
 
 exports.handleRequestError = (e, action) => {
     console.log(`${action} failed with error: ${e.message}`);
@@ -73,7 +74,7 @@ module.exports.evalFunction = (transformFunction) => {
     let parsedTransformFunction;
     if (transformFunction) {
         try {
-            parsedTransformFunction = eval(transformFunction); // eslint-disable-line
+            parsedTransformFunction = safeEval(transformFunction); // eslint-disable-line
         } catch (e) {
             throw new Error('Evaluation of the tranform function failed with error. Please check if you inserted valid javascript code:', e);
         }

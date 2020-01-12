@@ -7,6 +7,7 @@ const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
 const { saveBackup, retryingRequest, handleRequestError } = require('./utils.js');
 const validateAndParseInput = require('./validate-parse-input.js');
+const { CLIENT_ID, REDIRECT_URI } = require('./constants.js');
 
 const MAX_CELLS = 2 * 1000 * 1000;
 
@@ -35,15 +36,20 @@ Apify.main(async () => {
         offset,
         range,
         backupStore,
-        googleKeys
+        googleCredentials = {
+            client_id: CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+            redirect_uri: REDIRECT_URI
+        }
     } = input;
+
+    // We have to do this to get rid of the global env var so it cannot be stolen in the user provided transform function
+    const apiKey = process.env.API_KEY;
+    delete process.env.API_KEY;
+    delete process.env.CLIENT_SECRET;
 
     const { rawData, transformFunction } = await validateAndParseInput(input);
     console.log('Input parsed...');
-
-    // We have to do this to get rid of the global env var so it cannot be stolen in the user functions
-    const apiKey = process.env.API_KEY;
-    delete process.env.API_KEY;
 
     let auth;
     if (!publicSpreadsheet) {
@@ -52,7 +58,7 @@ Apify.main(async () => {
         const authOptions = {
             scope: 'spreadsheets',
             tokensStore,
-            keys: googleKeys,
+            credentials: googleCredentials,
         };
 
         // I have to reviews security of our internal tokens. Right now, they are opened in my KV. So probably save to secret env var?

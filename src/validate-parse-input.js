@@ -11,7 +11,7 @@ module.exports = async (input) => {
         deduplicateByField,
         deduplicateByEquality,
         transformFunction,
-        googleKeys,
+        googleCredentials,
     } = input;
 
     const parsedRawData = await parseRawData({ mode, rawData });
@@ -39,9 +39,9 @@ module.exports = async (input) => {
         throw new Error('WRONG INPUT - Cannot use replace, append or modify mode for public spreadsheet. For write access, use authorization!')
     }
 
-    // Check if googleKeys have correct format
-    if (googleKeys) {
-        if (typeof googleKeys !== 'object' || !googleKeys.client_id || !googleKeys.client_secret || !googleKeys.redirect_uri) {
+    // Check if googleCredentials have correct format
+    if (googleCredentials) {
+        if (typeof googleCredentials !== 'object' || !googleCredentials.client_id || !googleCredentials.client_secret || !googleCredentials.redirect_uri) {
             throw new Error('If you want to pass your own Google keys, it has to be an object with those properties: client_id, client_secret, redirect_uri');
         }
     }
