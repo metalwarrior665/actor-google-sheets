@@ -13,7 +13,7 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
     await retryingRequest(sheets.spreadsheets.values.update({
         spreadsheetId,
         range: spreadsheetRange,
-        valueInputOption: 'RAW',
+        valueInputOption: 'USER_ENTERED',
         resource: { values: rowsToInsert },
     })).catch((e) => handleRequestError(e, 'Inserting new rows'));
     console.log('Items inserted...');
