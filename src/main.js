@@ -36,6 +36,7 @@ Apify.main(async () => {
         offset,
         range,
         backupStore,
+        columnsOrder = [],
         googleCredentials = {
             client_id: CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
@@ -116,7 +117,16 @@ Apify.main(async () => {
 
     // Processing data (different for each mode)
     console.log('\nPHASE - PROCESSING DATA\n');
-    const rowsToInsert = await processMode({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction, backupStore }); // eslint-disable-line
+    const rowsToInsert = await processMode({
+        mode,
+        values,
+        newObjects,
+        deduplicateByField,
+        deduplicateByEquality,
+        transformFunction,
+        columnsOrder,
+        backupStore,
+    }); // eslint-disable-line
     console.log('Data processed...');
 
     // Save backup

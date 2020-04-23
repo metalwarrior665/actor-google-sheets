@@ -2,9 +2,9 @@ const Apify = require('apify');
 
 const { toRows, toObjects, updateRowsObjects } = require('./transformers.js');
 
-module.exports = async ({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction, backupStore }) => {
+module.exports = async ({ mode, values, newObjects, deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder, backupStore }) => {
     if (mode === 'replace') {
-        const replacedObjects = updateRowsObjects({ newObjects, deduplicateByField, deduplicateByEquality, transformFunction });
+        const replacedObjects = updateRowsObjects({ newObjects, deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder });
         return toRows(replacedObjects);
     }
     if (mode === 'modify' || mode === 'read') {
@@ -12,7 +12,7 @@ module.exports = async ({ mode, values, newObjects, deduplicateByField, deduplic
             throw new Error('There are either no data in the sheet or only one header row so it cannot be modified!');
         }
         const oldObjects = toObjects(values);
-        const replacedObjects = updateRowsObjects({ oldObjects, deduplicateByField, deduplicateByEquality, transformFunction });
+        const replacedObjects = updateRowsObjects({ oldObjects, deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder });
 
         if (mode === 'read') {
             await Apify.setValue('OUTPUT', replacedObjects);
@@ -23,7 +23,7 @@ module.exports = async ({ mode, values, newObjects, deduplicateByField, deduplic
     }
     if (mode === 'append') {
         const oldObjects = toObjects(values); // [] if zero or one rows
-        const appendedObjects = updateRowsObjects({ oldObjects, newObjects, deduplicateByField, deduplicateByEquality, transformFunction });
+        const appendedObjects = updateRowsObjects({ oldObjects, newObjects, deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder });
         return toRows(appendedObjects);
     }
     if (mode === 'load backup') {

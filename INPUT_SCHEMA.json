@@ -79,6 +79,12 @@
             "editor": "textfield",
             "sectionCaption": "Miscellaneous"
         },
+        "columnsOrder": {
+            "title": "Columns order",
+            "type": "array",
+            "description": "Order of columns",
+            "editor": "stringList"
+        },
         "tokensStore": {
             "title": "Google OAuth tokens store",
             "type": "string",

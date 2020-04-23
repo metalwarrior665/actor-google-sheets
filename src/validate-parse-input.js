@@ -12,6 +12,7 @@ module.exports = async (input) => {
         deduplicateByEquality,
         transformFunction,
         googleCredentials,
+        columnsOrder,
     } = input;
 
     const parsedRawData = await parseRawData({ mode, rawData });
@@ -55,6 +56,10 @@ module.exports = async (input) => {
             throw new Error('WRONG INPUT! - transformFunction cannot be used together with deduplicateByEquality or deduplicateByField!');
         }
         console.log('Transform function parsed...');
+    }
+
+    if (columnsOrder && !Array.isArray(columnsOrder)) {
+        throw new Error('WRONG INPUT! - columnsOrder must be an array on of string values(keys)!')
     }
 
     return { transformFunction: parsedTransformFunction, rawData: parsedRawData };

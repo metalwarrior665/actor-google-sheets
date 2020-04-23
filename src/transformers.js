@@ -55,7 +55,7 @@ const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
 exports.makeUniqueRows = makeUniqueRows;
 
 // works only if all objects in one array have the same keys
-exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByField, deduplicateByEquality, transformFunction }) => {
+exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder }) => {
     const oldKeys = oldObjects.length > 0 ? Object.keys(oldObjects[0]) : [];
     const newKeys = newObjects.length > 0 ? Object.keys(newObjects[0]) : [];
     const keys = union(oldKeys, newKeys);
@@ -69,7 +69,7 @@ exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByFi
         keys.forEach((key) => {
             if (!updatedObj[key]) updatedObj[key] = '';
         });
-        return sortObj(updatedObj);
+        return sortObj(updatedObj, columnsOrder.length > 0 ? columnsOrder : null);
     });
     return updatedObjects;
 };
