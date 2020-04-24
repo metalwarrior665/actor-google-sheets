@@ -1,5 +1,6 @@
-const sortObj = require('sort-object');
 const md5 = require('md5');
+
+const { sortObj } = require('./utils');
 
 exports.toObjects = (rows) => {
     if (!rows || rows.length <= 1) return [];
@@ -69,7 +70,7 @@ exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByFi
         keys.forEach((key) => {
             if (!updatedObj[key]) updatedObj[key] = '';
         });
-        return sortObj(updatedObj, columnsOrder.length > 0 ? columnsOrder : null);
+        return sortObj(updatedObj, columnsOrder);
     });
     return updatedObjects;
 };

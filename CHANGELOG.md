@@ -11,3 +11,6 @@
 #### 2020-01-11
 - **Warning!**: For running this actor's code outside of `lukaskrivka/google-sheets` official version, you will need to create your own Google Dev Console project and provide your own keys to the input! This change will apply to older versions as well!
 - Added: Option to read from public spreadsheets without authorization (pass `publicSpreadsheet: true` to the input).
+
+#### 2020-04-24
+- Added `columnsOrder` field so user can define the order of columns

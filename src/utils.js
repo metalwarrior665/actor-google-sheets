@@ -85,3 +85,20 @@ module.exports.evalFunction = (transformFunction) => {
         return parsedTransformFunction;
     }
 };
+
+// I know this is probably very inneficient way but for such a small thing it doesn't matter
+module.exports.sortObj = (obj, keys) => {
+    const newObj = {};
+    // First we add user-requested sorting
+    for (const key of keys) {
+        newObj[key] = obj[key];
+    }
+    // The we sort the rest alphabetically
+    const sortedKeys = Object.keys(obj).sort((a, b) => a.localeCompare(b));
+    for (const key of sortedKeys) {
+        if (!keys.includes(key)) {
+            newObj[key] = obj[key];
+        }
+    }
+    return newObj;
+};

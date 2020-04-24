@@ -1,9 +1,9 @@
 const Apify = require('apify');
-const sortObj = require('sort-object');
 const csvParser = require('csvtojson');
 
 const { toObjects } = require('./transformers.js');
 const { loadFromApify } = require('./loaders');
+const { sortObj } = require('./utils');
 
 module.exports.parseRawData = async ({ mode, rawData }) => {
     if (!Array.isArray(rawData)) {
@@ -74,7 +74,7 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
                 keys.forEach((key) => {
                     if (!item[key]) item[key] = '';
                 });
-                return sortObj(item);
+                return sortObj(item, []);
             });
             return updatedData;
         }

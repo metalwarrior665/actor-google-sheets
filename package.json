@@ -10,17 +10,7 @@
 		"exponential-backoff": "^1.0.7",
 		"googleapis": "^34.0.0",
 		"md5": "^2.2.1",
-		"safe-eval": "^0.4.1",
-		"sort-object": "^3.0.2"
-	},
-	"devDependencies": {
-		"eslint": "^5.8.0",
-		"eslint-config-airbnb": "^17.1.0",
-		"eslint-config-airbnb-base": "^13.1.0",
-		"eslint-plugin-import": "^2.14.0",
-		"eslint-plugin-mocha": "^5.2.0",
-		"eslint-plugin-promise": "^4.0.1",
-		"mocha": "^5.2.0"
+		"safe-eval": "^0.4.1"
 	},
 	"scripts": {
 		"start": "node src/main.js",
@@ -33,5 +23,6 @@
 	},
 	"author": "",
 	"license": "ISC",
-	"homepage": "https://www.apify.com/lukaskrivka/google-spreadsheet"
+	"homepage": "https://www.apify.com/lukaskrivka/google-spreadsheet",
+	"devDependencies": {}
 }
