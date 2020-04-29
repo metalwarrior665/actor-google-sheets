@@ -14,3 +14,6 @@
 
 #### 2020-04-24
 - Added `columnsOrder` field so user can define the order of columns
+
+#### 2020-04-29
+- New sheets (via `range` input) are now automatically created by the actor, no need to pre-create them anymore
