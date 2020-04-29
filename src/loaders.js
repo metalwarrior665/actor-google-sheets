@@ -15,7 +15,7 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
         clean: true,
     };
 
-    const datasetInfo = await Apify.client.datasets.getDataset({ datasetId: datasetId }).catch(() => console.log('Did not find a dataset with this ID'));
+    const datasetInfo = await Apify.client.datasets.getDataset({ datasetId }).catch(() => console.log('Did not find a dataset with this ID'));
     const simplified = datasetInfo && datasetInfo.actId === 'YPh5JENjSSR6vBf2E';
 
     if (simplified) {
@@ -47,13 +47,14 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
     return newObjects;
 };
 
-module.exports.loadFromSpreadsheet = async ({ sheets, spreadsheetId, spreadsheetRange }) => {
-    const rowsResponse = await retryingRequest(sheets.spreadsheets.values.get({
+module.exports.loadFromSpreadsheet = async ({ client, spreadsheetId, spreadsheetRange }) => {
+    const rowsResponse = await retryingRequest(client.spreadsheets.values.get({
         spreadsheetId,
         range: spreadsheetRange,
     })).catch((e) => handleRequestError(e, 'Getting current rows'));
     if (!rowsResponse || !rowsResponse.data) {
         throw new Error('We couldn\'t load current data from the spreadsheet so we cannot continue!!');
     }
+    console.dir(rowsResponse.data.values);
     return rowsResponse.data.values;
 };

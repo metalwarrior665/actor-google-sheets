@@ -1,6 +1,6 @@
 const { countCells, trimSheetRequest, retryingRequest, handleRequestError } = require('./utils');
 
-module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, sheets, targetSheetId }) => {
+module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, client, targetSheetId }) => {
     // ensuring max cells limit
     const cellsToInsert = countCells(rowsToInsert);
     console.log(`Total rows: ${rowsToInsert.length}, total cells: ${cellsToInsert}`);
@@ -10,7 +10,7 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
 
     // inserting cells
     console.log('Inserting new cells');
-    await retryingRequest(sheets.spreadsheets.values.update({
+    await retryingRequest(client.spreadsheets.values.update({
         spreadsheetId,
         range: spreadsheetRange,
         valueInputOption: 'USER_ENTERED',
@@ -23,13 +23,15 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
     const height = values && values.length > rowsToInsert.length
         ? rowsToInsert.length
         : null;
-    const width = values && values[0].length > rowsToInsert[0].length
-        ? rowsToInsert[0].length
+    const maxInSheetWidth = values ? values.reduce((max, row) => Math.max(max, row.length), 0) : 0;
+    const maxInsertWidth = rowsToInsert.reduce((max, row) => Math.max(max, row.length), 0);
+    const width = maxInSheetWidth > maxInsertWidth
+        ? maxInsertWidth
         : null;
     if (height || width) {
         if (height) console.log('Will delete unused rows');
         if (width) console.log('Will delete unused columns');
-        await retryingRequest(sheets.spreadsheets.batchUpdate({
+        await retryingRequest(client.spreadsheets.batchUpdate({
             spreadsheetId,
             resource: trimSheetRequest(height, width, targetSheetId),
         })).catch((e) => handleRequestError(e, 'Trimming excessive cells'));

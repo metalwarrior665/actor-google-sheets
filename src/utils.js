@@ -2,10 +2,11 @@ const Apify = require('apify');
 const { backOff } = require('exponential-backoff');
 const safeEval = require('safe-eval');
 
+const { log } = Apify.utils;
+
 exports.handleRequestError = (e, action) => {
-    console.log(`${action} failed with error: ${e.message}`);
-    console.dir(e);
-    throw new Error('Fail in the crucial request');
+    log.exception(`${action} failed with error: ${e.message}`);
+    throw new Error('Fail in the crucial request that cannot be retried');
 };
 
 exports.retryingRequest = async (request) => {
@@ -13,8 +14,11 @@ exports.retryingRequest = async (request) => {
         {
             fn: () => request,
             retry: (e, numberOfAttempts) => {
-                console.log(`retrying API call to google with atempt n. ${numberOfAttempts}`);
-                return e.message.includes('The service is currently unavailable');
+                const doRetry = e.message.includes('The service is currently unavailable');
+                if (doRetry) {
+                    log.warning(`Retrying API call to google with atempt n. ${numberOfAttempts} for error: ${e.message}`);
+                    return true;
+                }
             },
         },
         {
@@ -59,13 +63,23 @@ exports.trimSheetRequest = (height, width, sheetId) => {
     return payload;
 };
 
+module.exports.createSheetRequest = (title) => {
+    return {
+        requests: [{
+            addSheet: {
+                properties: { title },
+            },
+        }],
+    };
+};
+
 module.exports.saveBackup = async (createBackup, values) => {
     if (createBackup) {
         if (values) {
-            console.log('Saving backup...');
+            log.info('Saving backup...');
             await Apify.setValue('backup', values);
         } else {
-            console.log('There are currently no rows in the spreadsheet so we will not save backup...');
+            log.warning('There are currently no rows in the spreadsheet so we will not save backup...');
         }
     }
 };
