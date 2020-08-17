@@ -55,6 +55,6 @@ module.exports.loadFromSpreadsheet = async ({ client, spreadsheetId, spreadsheet
     if (!rowsResponse || !rowsResponse.data) {
         throw new Error('We couldn\'t load current data from the spreadsheet so we cannot continue!!');
     }
-    console.dir(rowsResponse.data.values);
+    // console.dir(rowsResponse.data.values);
     return rowsResponse.data.values;
 };
