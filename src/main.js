@@ -7,7 +7,7 @@ const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
 const { saveBackup, retryingRequest, handleRequestError, createSheetRequest } = require('./utils.js');
 const validateAndParseInput = require('./validate-parse-input.js');
-const { CLIENT_ID, REDIRECT_URI } = require('./constants.js');
+const { CLIENT_ID, REDIRECT_URI, CLIENT_ID_2 } = require('./constants.js');
 
 const { log } = Apify.utils;
 
@@ -42,13 +42,20 @@ Apify.main(async () => {
             client_id: CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
             redirect_uri: REDIRECT_URI,
-        }
+            // Unfortunately this is needed to hack around the 100 users limitation
+            // because Google doesn't want to verify u
+            additionalClients: [{
+                client_id: CLIENT_ID_2,
+                client_secret: process.env.CLIENT_SECRET_2,
+            }],
+        },
     } = input;
 
     // We have to do this to get rid of the global env var so it cannot be stolen in the user provided transform function
     const apiKey = process.env.API_KEY;
     delete process.env.API_KEY;
     delete process.env.CLIENT_SECRET;
+    delete process.env.CLIENT_SECRET_2;
 
     const { rawData, transformFunction } = await validateAndParseInput(input);
     log.info('Input parsed...');

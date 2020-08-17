@@ -4,14 +4,14 @@
 	"description": "Apify actor for importing data to Google spreadsheet",
 	"main": "src/main.js",
 	"dependencies": {
-		"apify": "^0.20.3",
-		"apify-google-auth": "^0.3.0",
+		"apify": "^0.21.3",
+		"apify-google-auth": "^0.3.1",
 		"csvtojson": "^2.0.8",
 		"exponential-backoff": "^1.0.7",
 		"googleapis": "^34.0.0",
 		"md5": "^2.2.1",
 		"safe-eval": "^0.4.1"
-    },
+	},
 	"scripts": {
 		"start": "node src/main.js --silent",
 		"test": "mocha",
@@ -23,6 +23,8 @@
 	},
 	"author": "",
 	"license": "ISC",
-	"homepage": "https://www.apify.com/lukaskrivka/google-spreadsheet"
-
+	"homepage": "https://www.apify.com/lukaskrivka/google-spreadsheet",
+	"devDependencies": {
+		"@types/eslint": "^6.8.0"
+	}
 }
