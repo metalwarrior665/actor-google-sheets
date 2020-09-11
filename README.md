@@ -103,7 +103,7 @@ You have two options how you can import data with this actor:
 Both these options behave exactly the same in every other means e.g. in modes, transformFunction, deduplication etc.
 
 ### Google Sheets value parser
-The import is using the default [Google Sheets parsing](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption). Basically, it should work exactly the same as if you write the value to the sheet manually. This has important ramifications because it will use localized version of the parser in your spreadsheet. This means that (probably depending on the country) for some users `"1.1"` will be interpreted as number but for others it might be a string. The same goes for `"1,1"`. That is why for numbers it is always recommended to use valid JSON numbers, e.g. `1.1`.
+The import is using the default [Google Sheets parsing](https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption). Basically, it should work exactly the same as if you write the value to the sheet manually. This has important ramifications because it will use a localized version of the parser in your spreadsheet. This means that (probably depending on the country) for some users `"1.1"` will be interpreted as a number but for others it might be a string. The same goes for `"1,1"`. That is why for numbers it is always recommended to use valid JSON numbers, e.g. `1.1`.
 
 ## Loading from Spreadsheet
 
