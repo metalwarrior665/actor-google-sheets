@@ -70,8 +70,12 @@ Apify.main(async () => {
             credentials: googleCredentials,
         };
 
-        // I have to reviews security of our internal tokens. Right now, they are opened in my KV. So probably save to secret env var?
-        auth = await apifyGoogleAuth(authOptions);
+        try {
+            auth = await apifyGoogleAuth(authOptions);
+        } catch (e) {
+            log.error('Authorization failed! Ensure that you are signing up with the same account where the spreadsheet is located!');
+            throw e;
+        }
         log.info('Authorization completed...');
     } else {
         log.info('\nPHASE - SKIPPING AUTHORIZATION (public spreadsheet)\n');
