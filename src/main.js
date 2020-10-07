@@ -11,7 +11,7 @@ const { CLIENT_ID, REDIRECT_URI, CLIENT_ID_2 } = require('./constants.js');
 
 const { log } = Apify.utils;
 
-const MAX_CELLS = 2 * 1000 * 1000;
+const MAX_CELLS = 5 * 1000 * 1000;
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
