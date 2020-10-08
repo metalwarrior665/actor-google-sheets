@@ -85,6 +85,11 @@
             "description": "Array of keys. First sorts the columns by provided keys. The rest is sorted alphabetically.",
             "editor": "stringList"
         },
+        "keepSheetColumnOrder": {
+            "title": "Keep column order from sheet",
+            "type": "boolean",
+            "description": "If true, keeps the order of columns as they are in the sheet. If there is no sheet data yet, this does nothing."
+        },
         "tokensStore": {
             "title": "Google OAuth tokens store",
             "type": "string",

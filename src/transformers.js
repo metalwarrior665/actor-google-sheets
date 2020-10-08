@@ -1,6 +1,7 @@
 const md5 = require('md5');
 
 const { sortObj } = require('./utils');
+const { flattenArrayOfObjectsAndGetKeys } = require('./tabulation');
 
 exports.toObjects = (rows) => {
     if (!rows || rows.length <= 1) return [];
@@ -22,14 +23,6 @@ exports.toRows = (objects) => {
     const header = Object.keys(objects[0]);
     const values = objects.map((object) => Object.values(object));
     return [header, ...values];
-};
-
-const union = (setA, setB) => {
-    const unioned = new Set(setA);
-    for (const elem of setB) {
-        unioned.add(elem);
-    }
-    return Array.from(unioned);
 };
 
 const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
@@ -56,16 +49,28 @@ const makeUniqueRows = (oldObjects, newObjects, field, equality) => {
 exports.makeUniqueRows = makeUniqueRows;
 
 // works only if all objects in one array have the same keys
-exports.updateRowsObjects = ({ oldObjects = [], newObjects = [], deduplicateByField, deduplicateByEquality, transformFunction, columnsOrder }) => {
-    const oldKeys = oldObjects.length > 0 ? Object.keys(oldObjects[0]) : [];
-    const newKeys = newObjects.length > 0 ? Object.keys(newObjects[0]) : [];
-    const keys = union(oldKeys, newKeys);
+exports.updateRowsObjects = ({
+    oldObjects = [],
+    newObjects = [],
+    deduplicateByField,
+    deduplicateByEquality,
+    transformFunction,
+    columnsOrder,
+    keepSheetColumnOrder,
+}) => {
+    if (keepSheetColumnOrder && oldObjects[0]) {
+        // eslint-disable-next-line prefer-destructuring
+        columnsOrder = Object.keys(oldObjects[0]);
+    }
     // if no field or equality - this is simple concat
     const allObjects = transformFunction
         ? transformFunction({ datasetData: newObjects, spreadsheetData: oldObjects })
         : makeUniqueRows(oldObjects, newObjects, deduplicateByField, deduplicateByEquality);
-    // const concated = oldObjects.concat(toConcat);
-    const updatedObjects = allObjects.map((object) => {
+
+    const { keys, flattenedData } = flattenArrayOfObjectsAndGetKeys(allObjects);
+
+    // We have to sort and fill empty after we flatten
+    const updatedObjects = flattenedData.map((object) => {
         const updatedObj = object;
         keys.forEach((key) => {
             if (!updatedObj[key]) updatedObj[key] = '';

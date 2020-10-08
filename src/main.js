@@ -38,6 +38,7 @@ Apify.main(async () => {
         range,
         backupStore,
         columnsOrder = [],
+        keepSheetColumnOrder = false,
         googleCredentials = {
             client_id: CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
@@ -144,6 +145,7 @@ Apify.main(async () => {
         deduplicateByEquality,
         transformFunction,
         columnsOrder,
+        keepSheetColumnOrder,
         backupStore,
     }); // eslint-disable-line
     log.info('Data processed...');

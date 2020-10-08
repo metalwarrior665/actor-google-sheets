@@ -3,9 +3,9 @@ const { countCells, trimSheetRequest, retryingRequest, handleRequestError } = re
 module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, client, targetSheetId }) => {
     // ensuring max cells limit
     const cellsToInsert = countCells(rowsToInsert);
-    console.log(`Total rows: ${rowsToInsert.length}, total cells: ${cellsToInsert}`);
+    console.log(`Total rows: ${rowsToInsert.length}, total columns: ${rowsToInsert[0].length} total cells: ${cellsToInsert}`);
     if (cellsToInsert > maxCells) {
-        throw new Error(`You reached the max limit of ${maxCells} cells. Try inserting less rows.`);
+        throw `You reached the max limit of ${maxCells} cells. Try inserting less rows.`;
     }
 
     // inserting cells

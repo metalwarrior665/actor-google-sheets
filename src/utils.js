@@ -2,6 +2,8 @@ const Apify = require('apify');
 const { backOff } = require('exponential-backoff');
 const safeEval = require('safe-eval');
 
+const { sortPropertyNames } = require('./tabulation');
+
 const { log } = Apify.utils;
 
 exports.handleRequestError = (e, action) => {
@@ -100,15 +102,18 @@ module.exports.evalFunction = (transformFunction) => {
     }
 };
 
-// I know this is probably very inneficient way but for such a small thing it doesn't matter
+// I know this is very inneficient way but so far didn't hit a performance bottleneck (on 3M items)
 module.exports.sortObj = (obj, keys) => {
     const newObj = {};
     // First we add user-requested sorting
     for (const key of keys) {
         newObj[key] = obj[key];
     }
-    // The we sort the rest alphabetically
-    const sortedKeys = Object.keys(obj).sort((a, b) => a.localeCompare(b));
+    // The we sort the rest with special algorithm
+    // They are really only sorted mutably
+    const sortedKeys = Object.keys(obj);
+    sortPropertyNames(sortedKeys);
+
     for (const key of sortedKeys) {
         if (!keys.includes(key)) {
             newObj[key] = obj[key];
