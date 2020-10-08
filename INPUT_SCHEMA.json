@@ -39,7 +39,7 @@
         "limit": {
             "title": "Limit items",
             "type": "integer",
-            "description": "Number of items to take from the dataset. Default is 250000.",
+            "description": "Number of items to take from the dataset. The default is 250000.",
             "unit": "items",
             "minimum": 0,
             "default": 250000
@@ -55,7 +55,7 @@
         "deduplicateByField": {
             "title": "Deduplicate by field",
             "type": "string",
-            "description": "Items will be deduplicated by value of this field. Cannot be used together with 'Deduplicate by equality' or 'Transform function'.",
+            "description": "Items will be deduplicated by a value of this field. Cannot be used together with 'Deduplicate by equality' or 'Transform function'.",
             "editor": "textfield",
             "sectionCaption": "Deduplication and transformation",
             "sectionDescription": "Choose up to one way to deduplicate or transform your data."
