@@ -15,7 +15,7 @@
 
 ## Overview
 
-**Google Sheets** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or from a raw JSON. It can be run both on the Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://kb.apify.com/integration/google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
+**Google Sheets** is an [Apify actor](https://www.apify.com/docs/actor) that can be used to either process data in your current spreadsheet or import new data from [Apify datasets](https://www.apify.com/docs/storage#dataset) or from a raw JSON. It can be run both on the Apify platform or locally. It is built with [Apify SDK](https://sdk.apify.com/), [apify-google-auth](https://help.apify.com/en/articles/2424053-google-integration) and [googleapis](https://github.com/googleapis/google-api-nodejs-client) npm packages.
 
 If official Google Sheets API is too complicated for you and you need to just import and export data, then use this Google Sheets actor for import from another sheet or import datasets if you scrape websites using actors.
 
@@ -39,7 +39,7 @@ If on the other side you want to run the actor **locally**, you need to open the
 
 ## Authentication and authorization
 
-If you use this actor for the first time, you have to login with the same Google account where the spreadsheet is located, authorize and allow Apify to work with your spreadsheets. Internally we use our small npm package [`apify-google-auth`](https://www.npmjs.com/package/apify-google-auth). Please check this [article](https://kb.apify.com/integration/google-integration) how to authorize.
+If you use this actor for the first time, you have to login with the same Google account where the spreadsheet is located, authorize and allow Apify to work with your spreadsheets. Internally we use our small npm package [`apify-google-auth`](https://www.npmjs.com/package/apify-google-auth). Please check this [article](https://help.apify.com/en/articles/2424053-google-integration) how to authorize.
 
 After you authorize for the first time, tokens are stored in your key-value store (option `tokensStore` which is by default `google-oauth-tokens`) and you don't need to authorize again. So after the first usage, you can fully automate the actor.
 
