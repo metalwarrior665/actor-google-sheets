@@ -90,7 +90,8 @@ module.exports.evalFunction = (transformFunction) => {
     let parsedTransformFunction;
     if (transformFunction) {
         try {
-            parsedTransformFunction = safeEval(transformFunction); // eslint-disable-line
+            // Safe eval stopped working with commented code
+            parsedTransformFunction = eval(transformFunction); // eslint-disable-line
         } catch (e) {
             throw new Error('Evaluation of the tranform function failed with error. Please check if you inserted valid javascript code:', e);
         }
