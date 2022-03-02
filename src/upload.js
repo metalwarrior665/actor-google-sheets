@@ -1,4 +1,4 @@
-const { countCells, trimSheetRequest, retryingRequest, handleRequestError } = require('./utils');
+const { countCells, trimSheetRequest, retryingRequest } = require('./utils');
 
 module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRange, values, client, targetSheetId }) => {
     // ensuring max cells limit
@@ -10,12 +10,12 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
 
     // inserting cells
     console.log('Inserting new cells');
-    await retryingRequest(client.spreadsheets.values.update({
+    await retryingRequest('Inserting new rows', client.spreadsheets.values.update({
         spreadsheetId,
         range: spreadsheetRange,
         valueInputOption: 'USER_ENTERED',
         resource: { values: rowsToInsert },
-    })).catch((e) => handleRequestError(e, 'Inserting new rows'));
+    }));
     console.log('Items inserted...');
 
     // trimming cells
@@ -31,10 +31,10 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
     if (height || width) {
         if (height) console.log('Will delete unused rows');
         if (width) console.log('Will delete unused columns');
-        await retryingRequest(client.spreadsheets.batchUpdate({
+        await retryingRequest('Trimming excessive cells', client.spreadsheets.batchUpdate({
             spreadsheetId,
             resource: trimSheetRequest(height, width, targetSheetId),
-        })).catch((e) => handleRequestError(e, 'Trimming excessive cells'));
+        }));
     } else {
         console.log('No need to delete any rows or columns');
     }

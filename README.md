@@ -50,6 +50,8 @@ After you authorize for the first time, the authentication tokens will be stored
 
 **Note**: To integrate multiple Google accounts to a single Apify account, each Google account will need its own  `tokensStore` . So, remember to properly name each store, so you can efficiently track which tokens belong to which account.
 
+If you don't want to use the old tokens, you can also always delete the `tokensStore` (default `google-oauth-tokens`) from your Storage -> Key Value Stores tab in the Apify Console and authorize again in the next run.
+
 #### Public spreadsheet (no authorization)
 
 If you only want to use this tool's `read` function and don't want to bother with authorization, you can publish your spreadsheet and make it public. This enables you to use this tool without the need to provide authentication tokens. To run this actor for a public spreadsheet, just check the `Public spreadsheet (read-only)` option, which is the equivalent of passing  `publicSpreadsheet: true`  to the input options. 

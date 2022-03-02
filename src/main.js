@@ -5,7 +5,7 @@ const { apifyGoogleAuth } = require('apify-google-auth');
 const processMode = require('./modes.js');
 const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
-const { saveBackup, retryingRequest, handleRequestError, createSheetRequest } = require('./utils.js');
+const { saveBackup, retryingRequest, createSheetRequest } = require('./utils.js');
 const validateAndParseInput = require('./validate-parse-input.js');
 const { CLIENT_ID, REDIRECT_URI, CLIENT_ID_2 } = require('./constants.js');
 
@@ -15,7 +15,7 @@ const MAX_CELLS = 5 * 1000 * 1000;
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
-    log.info('Input:', { ...input, parsedData: 'not diplayed, check input tab directly...', googleCredentials: 'not diplayed, check input tab directly...' });
+    log.info('Input:', { ...input, parsedData: 'not displayed, check input tab directly...', googleCredentials: 'not diplayed, check input tab directly...' });
 
     log.info('\nPHASE - PARSING INPUT\n');
 
@@ -86,7 +86,7 @@ Apify.main(async () => {
     log.info('\nPHASE - LOADING SPREADSHEET METADATA\n');
     const client = google.sheets({ version: 'v4', auth: auth || apiKey });
 
-    const spreadsheetMetadata = await retryingRequest(client.spreadsheets.get({ spreadsheetId })).catch((e) => handleRequestError(e, 'Getting spreadsheet metadata'));
+    const spreadsheetMetadata = await retryingRequest('Getting spreadsheet metadata', client.spreadsheets.get({ spreadsheetId }));
     const sheetsMetadata = spreadsheetMetadata.data.sheets.map((sheet) => sheet.properties);
     const { title: firstSheetName, sheetId: firstSheetId } = sheetsMetadata[0];
     log.info(`name of the first sheet: ${firstSheetName}`);
@@ -106,10 +106,10 @@ Apify.main(async () => {
             // Sheet name is before ! or the whole range if no !
             const title = range.split('!')[0];
             log.warning('Cannot find target sheet. Creating new one.');
-            const resp = await retryingRequest(client.spreadsheets.batchUpdate({
+            const resp = await retryingRequest('Creating new sheet', client.spreadsheets.batchUpdate({
                 spreadsheetId,
                 resource: createSheetRequest(title),
-            })).catch((e) => handleRequestError(e, 'Creating new sheet'));
+            }));
             targetSheetId = resp.data.replies[0].addSheet.properties.sheetId;
         }
     }
