@@ -10,7 +10,7 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
 
     // inserting cells
     console.log('Inserting new cells');
-    await retryingRequest('Inserting new rows', client.spreadsheets.values.update({
+    await retryingRequest('Inserting new rows', async () => client.spreadsheets.values.update({
         spreadsheetId,
         range: spreadsheetRange,
         valueInputOption: 'USER_ENTERED',
@@ -31,7 +31,7 @@ module.exports = async ({ maxCells, rowsToInsert, spreadsheetId, spreadsheetRang
     if (height || width) {
         if (height) console.log('Will delete unused rows');
         if (width) console.log('Will delete unused columns');
-        await retryingRequest('Trimming excessive cells', client.spreadsheets.batchUpdate({
+        await retryingRequest('Trimming excessive cells', async () => client.spreadsheets.batchUpdate({
             spreadsheetId,
             resource: trimSheetRequest(height, width, targetSheetId),
         }));

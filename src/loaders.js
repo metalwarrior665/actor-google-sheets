@@ -48,7 +48,7 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
 };
 
 module.exports.loadFromSpreadsheet = async ({ client, spreadsheetId, spreadsheetRange }) => {
-    const rowsResponse = await retryingRequest('Getting spreadsheet rows', client.spreadsheets.values.get({
+    const rowsResponse = await retryingRequest('Getting spreadsheet rows', async () => client.spreadsheets.values.get({
         spreadsheetId,
         range: spreadsheetRange,
     }));

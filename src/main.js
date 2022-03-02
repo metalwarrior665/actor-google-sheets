@@ -86,7 +86,7 @@ Apify.main(async () => {
     log.info('\nPHASE - LOADING SPREADSHEET METADATA\n');
     const client = google.sheets({ version: 'v4', auth: auth || apiKey });
 
-    const spreadsheetMetadata = await retryingRequest('Getting spreadsheet metadata', client.spreadsheets.get({ spreadsheetId }));
+    const spreadsheetMetadata = await retryingRequest('Getting spreadsheet metadata', async () => client.spreadsheets.get({ spreadsheetId }));
     const sheetsMetadata = spreadsheetMetadata.data.sheets.map((sheet) => sheet.properties);
     const { title: firstSheetName, sheetId: firstSheetId } = sheetsMetadata[0];
     log.info(`name of the first sheet: ${firstSheetName}`);
@@ -106,7 +106,7 @@ Apify.main(async () => {
             // Sheet name is before ! or the whole range if no !
             const title = range.split('!')[0];
             log.warning('Cannot find target sheet. Creating new one.');
-            const resp = await retryingRequest('Creating new sheet', client.spreadsheets.batchUpdate({
+            const resp = await retryingRequest('Creating new sheet', async () => client.spreadsheets.batchUpdate({
                 spreadsheetId,
                 resource: createSheetRequest(title),
             }));
