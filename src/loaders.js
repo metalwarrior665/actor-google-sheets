@@ -1,7 +1,7 @@
 const Apify = require('apify');
 const csvParser = require('csvtojson');
 
-const { retryingRequest, handleRequestError } = require('./utils.js');
+const { retryingRequest } = require('./utils.js');
 
 module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
     if (mode !== 'append' && mode !== 'replace') {
@@ -48,10 +48,10 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
 };
 
 module.exports.loadFromSpreadsheet = async ({ client, spreadsheetId, spreadsheetRange }) => {
-    const rowsResponse = await retryingRequest(client.spreadsheets.values.get({
+    const rowsResponse = await retryingRequest('Getting spreadsheet rows', client.spreadsheets.values.get({
         spreadsheetId,
         range: spreadsheetRange,
-    })).catch((e) => handleRequestError(e, 'Getting current rows'));
+    }));
     if (!rowsResponse || !rowsResponse.data) {
         throw new Error('We couldn\'t load current data from the spreadsheet so we cannot continue!!');
     }

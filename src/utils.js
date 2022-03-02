@@ -1,33 +1,49 @@
 const Apify = require('apify');
-const { backOff } = require('exponential-backoff');
-const safeEval = require('safe-eval');
 
 const { sortPropertyNames } = require('./tabulation');
 
 const { log } = Apify.utils;
 
-exports.handleRequestError = (e, action) => {
-    log.exception(`${action} failed with error: ${e.message}`);
-    throw new Error('Fail in the crucial request that cannot be retried');
-};
+const ERRORS_TO_RETRY = [
+    'The service is currently unavailable',
+]
 
-exports.retryingRequest = async (request) => {
-    return backOff(
-        {
-            fn: () => request,
-            retry: (e, numberOfAttempts) => {
-                const doRetry = e.message.includes('The service is currently unavailable');
-                if (doRetry) {
-                    log.warning(`Retrying API call to google with atempt n. ${numberOfAttempts} for error: ${e.message}`);
-                    return true;
-                }
-            },
-        },
-        {
-            numberOfAttempts: 6,
-            timeMultiple: 3,
-        },
-    );
+const getNiceErrorMessage = (type, errorMessage) => {
+    const baseErrorMessage = `Request ${type} failed with error ${e.message}`;
+    const wrongAccountText = `Perhaps you used a wrong Google account?\n`
+        + `If you want to use a different Google account or use multiple Google accounts, please follow the guide here:\n`
+        + `https://apify.com/lukaskrivka/google-sheets#authentication-and-authorization\n`
+    if (errorMessage.includes('invalid_grant')) {
+        return `${baseErrorMessage}\n${wrongAccountText}`;
+    } else if (errorMessage.includes('The caller does not have permission')) {
+        return `${baseErrorMessage}\n${wrongAccountText}`;
+    } else {
+        return baseErrorMessage;
+    }
+}
+
+exports.retryingRequest = async (type, request) => {
+    const MAX_ATTEMPTS = 6;
+    const SLEEP_MULTIPLIER = 3;
+    let sleepMs = 1000;
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+        let response;
+        try {
+            response = await request();
+            return response;
+        } catch (e) {
+            const willRetry = ERRORS_TO_RETRY.some((errorMessage) => e.message.includes(errorMessage));
+            if (willRetry) {
+                log.warning(`Retrying API call for ${type} to google with attempt n. ${i + 1} for error: ${e.message}`);
+                await Apify.utils.sleep(sleepMs);
+                sleepMs *= SLEEP_MULTIPLIER;
+            } else {
+                const error = getNiceErrorMessage(type, e.message);
+                throw error;
+            }
+        }
+    }
 };
 
 exports.countCells = (rows) => {
