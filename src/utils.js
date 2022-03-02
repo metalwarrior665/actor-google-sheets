@@ -9,7 +9,7 @@ const ERRORS_TO_RETRY = [
 ]
 
 const getNiceErrorMessage = (type, errorMessage) => {
-    const baseErrorMessage = `Request ${type} failed with error ${e.message}`;
+    const baseErrorMessage = `Request ${type} failed with error ${errorMessage}`;
     const wrongAccountText = `Perhaps you used a wrong Google account?\n`
         + `If you want to use a different Google account or use multiple Google accounts, please follow the guide here:\n`
         + `https://apify.com/lukaskrivka/google-sheets#authentication-and-authorization\n`
