@@ -87,25 +87,19 @@ module.exports.parseRawData = async ({ mode, rawData }) => {
         }
 
         const { datasets } = Apify.client;
+        const datasetCollectionClient = Apify.newClient().datasets;
 
-        let { id, itemCount } = await datasets.getOrCreateDataset({ // eslint-disable-line
-            datasetName: 'spreadsheet-temporary-container',
-        });
+        let { id, itemCount } = await datasetCollectionClient.getOrCreate('spreadsheet-temporary-container');
         if (itemCount > 0) {
-            await datasets.deleteDataset({ datasetId: id });
-            id = await datasets.getOrCreateDataset({
-                datasetName: 'spreadsheet-temporary-container',
-            }).then((res) => res.id);
+            const datasetClient = Apify.newClient().dataset(id);
+            await datasetClient.delete();
+            id = await datasetCollectionClient.getOrCreate('spreadsheet-temporary-container')
+                .then((res) => res.id);
         }
-        await datasets.putItems({
-            datasetId: id,
-            data: rawData,
-        });
+        const datasetClient = Apify.newClient().dataset(id);
+        await datasetClient.pushItems(rawData);
 
-        const csv = await datasets.getItems({
-            format: 'csv',
-            datasetId: id,
-        }).then((res) => res.items);
+        const csv = (await datasetClient.downloadItems('csv')).toString();
 
         return csvParser().fromString(csv);
     }

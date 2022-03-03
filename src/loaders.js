@@ -15,18 +15,12 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
         clean: true,
     };
 
-    const datasetInfo = await Apify.client.datasets.getDataset({ datasetId }).catch(() => console.log('Did not find a dataset with this ID'));
-    const simplified = datasetInfo && datasetInfo.actId === 'YPh5JENjSSR6vBf2E';
+    const datasetClient = Apify.newClient().dataset(datasetId);
 
-    if (simplified) {
-        console.log('Will load simplifed results');
-    }
-
-    const csv = await Apify.client.datasets.getItems({
-        datasetId,
+    const csv = await datasetClient.listItems({
         ...defaultOptions,
-        simplified,
-    }).then((res) => res.items).catch(() => console.log('could not load data from dataset, will try crawler execution'));
+    }).then((res) => res.items)
+    .catch(() => console.log('could not load data from dataset. Perhaps wrong ID?'));
 
     if (!csv) {
         throw new Error(`We didn't find any dataset with provided datasetId: ${datasetId}`);
