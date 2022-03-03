@@ -1,4 +1,8 @@
 ## Version 2
+#### 2022-03-03
+- Migrated to new SDK version which caused crashes for one day until hotfixed.
+- Better error messages
+
 #### 2020-10-08
 - Fixed: A bug that prevented loading big amount of data from the spreadsheets (by upgrading `googleapis` version)
 - Fixed: `transformFunction` was adding extra columns from the dataset even if they were renamed

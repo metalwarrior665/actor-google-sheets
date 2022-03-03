@@ -9,7 +9,6 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
     }
 
     const defaultOptions = {
-        format: 'csv',
         limit,
         offset,
         clean: true,
@@ -17,9 +16,9 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
 
     const datasetClient = Apify.newClient().dataset(datasetId);
 
-    const csv = await datasetClient.listItems({
+    const csv = await datasetClient.downloadItems('csv', {
         ...defaultOptions,
-    }).then((res) => res.items)
+    }).then((res) => res.toString())
     .catch(() => console.log('could not load data from dataset. Perhaps wrong ID?'));
 
     if (!csv) {
