@@ -28,6 +28,7 @@ module.exports.loadFromApify = async ({ mode, datasetId, limit, offset }) => {
     const isLegacyPhantom = datasetInfo.actId === 'YPh5JENjSSR6vBf2E';
     let csv;
     if (isLegacyPhantom) {
+        log.warning(`Requesting dataset of deprecated phantom legacy actor. Please report if the format is not correct`);
         const limitStr = limit ? `&limit=${limit}` : '';
         const offsetStr = offset ? `&offset=${offset}` : '';
         const url = `https://api.apify.com/v2/datasets/${datasetId}/items?format=csv&simplified=true&clean=true${limitStr}${offsetStr}`;
