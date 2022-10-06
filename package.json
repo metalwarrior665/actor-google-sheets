@@ -5,7 +5,7 @@
 	"main": "src/main.js",
 	"dependencies": {
 		"apify": "^2.2.2",
-		"apify-google-auth": "^0.4.1",
+		"apify-google-auth": "^0.5.1",
 		"csvtojson": "^2.0.8",
 		"googleapis": "^61.0.0",
 		"md5": "^2.2.1"

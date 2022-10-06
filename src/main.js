@@ -7,7 +7,7 @@ const { loadFromApify, loadFromSpreadsheet } = require('./loaders.js');
 const upload = require('./upload.js');
 const { saveBackup, retryingRequest, createSheetRequest } = require('./utils.js');
 const validateAndParseInput = require('./validate-parse-input.js');
-const { CLIENT_ID, REDIRECT_URI, CLIENT_ID_2 } = require('./constants.js');
+const { CLIENT_ID, REDIRECT_URI, CLIENT_ID_2, REDIRECT_URI_SERVER, CLIENT_SERVER_ID_1 } = require('./constants.js');
 
 const { log } = Apify.utils;
 
@@ -45,10 +45,19 @@ Apify.main(async () => {
             redirect_uri: REDIRECT_URI,
             // Unfortunately this is needed to hack around the 100 users limitation
             // because Google doesn't want to verify u
-            additionalClients: [{
-                client_id: CLIENT_ID_2,
-                client_secret: process.env.CLIENT_SECRET_2,
-            }],
+            additionalClients: [
+                {
+                    client_id: CLIENT_ID_2,
+                    client_secret: process.env.CLIENT_SECRET_2,
+                    redirect_uri: REDIRECT_URI,
+                },
+                // This is the only client that works for new users because it uses the server flow
+                {
+                    client_id: CLIENT_SERVER_ID_1,
+                    client_secret: process.env.CLIENT_SECRET_SERVER_1,
+                    redirect_uri: REDIRECT_URI_SERVER,
+                },
+            ],
         },
     } = input;
 
@@ -57,6 +66,7 @@ Apify.main(async () => {
     delete process.env.API_KEY;
     delete process.env.CLIENT_SECRET;
     delete process.env.CLIENT_SECRET_2;
+    delete process.env.CLIENT_SECRET_SERVER_1;
 
     const { rawData, transformFunction } = await validateAndParseInput(input);
     log.info('Input parsed...');
